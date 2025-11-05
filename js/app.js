@@ -98,19 +98,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const frasesHomem = {
                 '50-59': '🔥 VIBRANDOOO! 🔥',
-                '60-69': '💪🔥 CADÊNCIA!!! 🔥💪',
-                '70-79': '🏃‍♂️💪 TICOU MAIS UMA, NÉ CORREDOR?! 💪🏃‍♂️',
+                '60-69': '💪🔥 CADÊNCIA, CORREDOR!!! 🔥💪',
+                '70-79': '🏃‍♂️💪 TÁ PAGO! 💪🏃‍♂️',
                 '80-89': '😱🚀 SÉRIO ISSO?!! 🚀😱',
                 '90-99': '🏅⚡ DANGER ZONE ⚡🏅',
                 '100': '🏆🥇⚓ Lenda Naval ⚓🥇🏆'
             };
             const frasesMulher = {
                 '50-59': '🔥 VIBRANDOOO! 🔥',
-                '60-69': '💪🔥 CADÊNCIA!! 🔥💪',
-                '70-79': '🏃‍♀️💪 TICOU MAIS UMA, NÉ CORREDORA?! 💪🏃‍♀️',
-                '80-89': '😱🚀 SÉRIO ISSO?! 🚀😱',
+                '60-69': '💪🔥 CADÊNCIA, CORREDORA!!! 🔥💪',
+                '70-79': '🏃‍♂️💪 TÁ PAGO! 💪🏃‍♂️',
+                '80-89': '😱🚀 SÉRIO ISSO?!! 🚀😱',
                 '90-99': '🏅⚡ DANGER ZONE ⚡🏅',
-                '100': '🏆🥇⚓ Lenda Naval⚓🥇🏆'
+                '100': '🏆🥇⚓ Lenda Naval ⚓🥇🏆'
             };
             const frases = sexo === 'F' ? frasesMulher : frasesHomem;
 
@@ -460,7 +460,7 @@ function atualizarTabelaNotas() {
     tabelaNotas.innerHTML = '';
 
     // Gera linhas para notas de 100 a 50
-    for (let nota = 100; nota >= 50; nota -= nota <= 85 ? 5 : 1) {
+    for (let nota = 50; nota <= 100; nota += 1) {
         const resultado = tempoEPaceParaNota(nota, idade, sexo, distancia);
 
         const tr = document.createElement('tr');
