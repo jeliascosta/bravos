@@ -108,8 +108,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 '50-59': '🔥 VIBRANDOOO! 🔥',
                 '60-69': '💪🔥 CADÊNCIA CORREDORA!!! 🔥💪',
                 '70-79': '🏃‍♂️💪 QUE TREINO TOP!! 💪🏃‍♂️',
-                '80-89': '😱🚀 SÉRIO ISSO?!! 🚀😱',
-                '90-99': '🏅⚡ DANGER ZONE ⚡🏅',
+                '80-89': '😯🚀 SÉRIO ISSO?!! 🚀😯',
+                '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
                 '100': '🏆🥇⚓ Lenda Naval ⚓🥇🏆'
             };
             const frases = sexo === 'F' ? frasesMulher : frasesHomem;
