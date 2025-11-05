@@ -417,6 +417,48 @@ function proporcaoPorNota(nota) {
     return proporcao0 + (proporcao100 - proporcao0) * Math.pow(t, expoente);
 }
 
+function proporcaoPorNota(nota) {
+    const proporcao100 = 1.0;
+    const proporcao0 = 2.0;
+    const nota0 = 0;
+    const notaElite = 90;
+    const nota100 = 100;
+
+    if (nota >= nota100) {
+        // acima de 100 → ~1% mais rápido por ponto
+        const fatorExtra = 0.01;
+        return proporcao100 * (1 - (nota - 100) * fatorExtra);
+    }
+
+    if (nota <= 0) {
+        // abaixo de 0 → dobra novamente o tempo (simétrico)
+        const proporcaoNeg = proporcao0 * 2.0;
+        const t = (-nota) / 100;
+        return proporcao0 + (proporcaoNeg - proporcao0) * Math.pow(t, 0.6);
+    }
+
+    // --- Região 0–100 com expoente variável contínuo ---
+    let expoente;
+    if (nota <= notaElite) {
+        // transição suave 0→90: 1.9 → 1.0
+        // curva levemente mais achatada entre 60 e 80
+        const t = (nota - nota0) / (notaElite - nota0);
+
+        // pico mais suave (menos punitivo entre 60 e 80)
+        expoente = 2.0 - 1.0 * Math.pow(t, 0.8);
+        // antes: 2.3 - 1.2 * t
+        // agora: reduz progressivamente o expoente nas notas médias
+    } else {
+        // transição suave 90→100: 1.0 → 0.6
+        const t = (nota - notaElite) / (nota100 - notaElite);
+        expoente = 1.1 - 0.5 * t;
+    }
+
+    // cálculo da proporção usando expoente dinâmico
+    const t = (nota - nota0) / (nota100 - nota0);
+    return proporcao0 + (proporcao100 - proporcao0) * Math.pow(t, expoente);
+}
+
 // function proporcaoPorNota(nota) {
 //     const proporcao100 = 1.0;
 //     const proporcao0 = 2.0;
