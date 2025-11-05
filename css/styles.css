@@ -1,4 +1,5 @@
 /* styles.css - Estilos para a calculadora CEFAN */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
 body {
     font-family: 'Arial', sans-serif;
@@ -299,7 +300,7 @@ tr:hover {
 .share-card .zone-phrase{
     text-transform: uppercase;
     font-weight: 900;
-    letter-spacing: 0.08em;
+    /* letter-spacing: 0.08em; */
     font-size: 0.95rem;
     margin-top: 8px;
     padding: 6px 12px;
@@ -321,8 +322,74 @@ tr:hover {
     letter-spacing: 0.04em;
 }
 
-/* responsividade */
+/* layout: score + meta lado a lado */
+.share-card .card-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+    width:100%;
+    margin-top:10px;
+}
+
+/* bloco esquerdo com score e zona */
+.share-card .card-left{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end; /* coloca número e zona mais à esquerda visualmente quando meta está ao lado */
+    gap:4px;
+    min-width:120px;
+}
+
+/* mantém score grande */
+.share-card .score-big{
+      font-family: 'Inter', sans-serif;
+    font-size:4.2rem;
+    font-weight:900;
+}
+
+/* zona pequena abaixo do score */
+.share-card .zone-small{
+    font-size:1rem;
+    font-weight:700;
+    opacity:0.95;
+}
+
+/* bloco direito com meta (dist, tempo, pace) */
+.share-card .card-meta{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:nowrap;
+}
+
+/* cada item meta */
+.share-card .card-meta .meta-item{
+    text-align:center;
+    min-width:78px;
+}
+
+/* label e valor das metas */
+.share-card .card-meta .meta-label{
+    font-size:0.72rem;
+    font-weight:700;
+    opacity:0.85;
+    margin-bottom:4px;
+}
+.share-card .card-meta .meta-value{
+    font-size:0.98rem;
+    font-weight:800;
+}
+
+/* responsividade: empilha no mobile */
 @media (max-width:420px){
     .share-card{ width: 92%; padding: 14px; border-radius: 16px; }
     .share-card .score-big{ font-size: 3rem; }
+    .share-card .card-row{
+        flex-direction:column;
+        gap:10px;
+    }
+    .share-card .card-left{ align-items:center; }
+    .share-card .card-meta{ gap:10px; }
 }

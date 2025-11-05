@@ -89,33 +89,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // zona de exemplo: décadas, 90+ é "90-100"
             function zonaLabel(n) {
-                if (n >= 90) return '90-100';
+                if (n === 100) return '100';
+                if (n >= 90) return '90-99';
                 const low = Math.floor(n / 10) * 10;
                 const high = low + 9;
                 return `${low}-${high}`;
             }
 
-            const frases = {
-                '50-59': 'Entrada — comece a treinar regularmente.',
-                '60-69': 'Progredindo — consistência importante.',
-                '70-79': 'Bom nível — continue a melhorar.',
-                '80-89': 'Excelente — performance competitiva.',
-                '90-100': 'Top — desempenho de elite!'
+            const frasesHomem = {
+                '50-59': '🔥 VIBRANDOOO! 🔥',
+                '60-69': '💪🔥 CADÊNCIA!!! 🔥💪',
+                '70-79': '🏃‍♂️💪 TICOU MAIS UMA, NÉ CORREDOR?! 💪🏃‍♂️',
+                '80-89': '😱🚀 SÉRIO ISSO?!! 🚀😱',
+                '90-99': '🏅⚡ DANGER ZONE ⚡🏅',
+                '100': '🏆🥇⚓ Lenda Naval ⚓🥇🏆'
             };
+            const frasesMulher = {
+                '50-59': '🔥 VIBRANDOOO! 🔥',
+                '60-69': '💪🔥 CADÊNCIA!! 🔥💪',
+                '70-79': '🏃‍♀️💪 TICOU MAIS UMA, NÉ CORREDORA?! 💪🏃‍♀️',
+                '80-89': '😱🚀 SÉRIO ISSO?! 🚀😱',
+                '90-99': '🏅⚡ DANGER ZONE ⚡🏅',
+                '100': '🏆🥇⚓ Lenda Naval⚓🥇🏆'
+            };
+            const frases = sexo === 'F' ? frasesMulher : frasesHomem;
 
             // utilitários de cor (hex)
             function hexToRgb(hex) {
-                const h = hex.replace('#','');
-                const bigint = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h,16);
-                return [(bigint>>16)&255,(bigint>>8)&255, bigint&255];
+                const h = hex.replace('#', '');
+                const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+                return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
             }
-            function rgbToHex([r,g,b]) { return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
-            function interpHex(a,b,t){
+            function rgbToHex([r, g, b]) { return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join(''); }
+            function interpHex(a, b, t) {
                 const ra = hexToRgb(a), rb = hexToRgb(b);
-                const r = Math.round(ra[0] + (rb[0]-ra[0])*t);
-                const g = Math.round(ra[1] + (rb[1]-ra[1])*t);
-                const bl = Math.round(ra[2] + (rb[2]-ra[2])*t);
-                return rgbToHex([r,g,bl]);
+                const r = Math.round(ra[0] + (rb[0] - ra[0]) * t);
+                const g = Math.round(ra[1] + (rb[1] - ra[1]) * t);
+                const bl = Math.round(ra[2] + (rb[2] - ra[2]) * t);
+                return rgbToHex([r, g, bl]);
             }
 
             // paletas
@@ -124,20 +135,24 @@ document.addEventListener('DOMContentLoaded', function () {
             const gold = '#ffd166'; // final gold
 
             let bgStart, bgEnd;
-            if (inteiro < 90) {
+            if (inteiro === 100) {
+                bgStart = gold;
+                bgEnd = gold;
+            }
+            else if (inteiro < 90) {
                 const t = Math.max(0, (inteiro - 50) / 40); // 50->90
-                bgStart = interpHex(pale, strong, Math.max(0, t*0.6));
+                bgStart = interpHex(pale, strong, Math.max(0, t * 0.6));
                 bgEnd = interpHex(pale, strong, t);
             } else {
                 const t2 = (inteiro - 90) / 10; // 0..1
                 // transição do strong para gold
-                bgStart = interpHex(strong, gold, Math.min(1, t2*0.6));
+                bgStart = interpHex(strong, gold, Math.min(1, t2 * 0.6));
                 bgEnd = interpHex(strong, gold, Math.min(1, t2));
             }
 
             // legibilidade: calcula luminance
-            function luminance(hex){
-                const [r,g,b] = hexToRgb(hex);
+            function luminance(hex) {
+                const [r, g, b] = hexToRgb(hex);
                 return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
             }
 
@@ -178,23 +193,76 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const zone = zonaLabel(inteiro);
-            const phrase = frases[zone] || (inteiro >= 90 ? frases['90-100'] : 'Boa performance');
+            const phrase = frases[zone] || (inteiro >= 90 ? frases['90-100'] : 'Vibrando!');
+
+            // calcular tempo / pace para exibir no card
+            let displayTempo = '--:--', displayPace = '--:--';
+            try {
+                if (tipoEntrada === 'tempo') {
+                    const tempoVal = document.getElementById('tempo').value;
+                    const seg = tempoStringParaSegundos(tempoVal);
+                    displayTempo = segundosParaMMSS(seg);
+                    displayPace = segundosParaMMSS(seg / distancia);
+                } else {
+                    const paceVal = document.getElementById('pace').value;
+                    const paceSeg = tempoStringParaSegundos(paceVal);
+                    displayPace = segundosParaMMSS(paceSeg);
+                    const seg = paceSeg * distancia;
+                    displayTempo = segundosParaMMSS(seg);
+                }
+            } catch (e) { /* segura se inputs faltarem */ }
+
+            const distLabel = Number.isFinite(distancia)
+                ? (distancia % 1 === 0 ? `${distancia} km` : `${distancia.toFixed(2)} km`)
+                : '-- km';
+
+
+            const hoje = (() => {
+                const d = new Date();
+                const dia = String(d.getDate()).padStart(2, '0');
+                const mes = String(d.getMonth() + 1).padStart(2, '0');
+                const ano = String(d.getFullYear()).slice(-2);
+                return `${dia}/${mes}/${ano}`;
+            })();
 
             const cardHtml = `
                 <div class="share-card" style="background: linear-gradient(180deg, ${bgStart}, ${bgEnd}); color:${textColor}">
                     <div class="share-top">
                         <span class="main">Meu IGDCC<span class="rev">REV2</span></span>
-                    </div>
+                        <div class="card-date" style="font-size:.7rem;font-weight:lighter;opacity:.8;margin-top:3px; margin-bottom: 5px">${hoje}</div>
+                        </div>
                     <div class="score-big">${inteiro}</div>
                     <div class="zone-small">${zone}</div>
+                    <div class="card-meta" style="display:flex;gap:12px;margin-top:8px;align-items:center;justify-content:center;">
+                        <div class="meta-item" style="text-align:center">
+                            <div style="font-size:.75rem;font-weight:700;opacity:.9">🛣️Distância</div>
+                            <div style="font-size:.95rem;font-weight:800">${distLabel}</div>
+                        </div>
+                        <div class="meta-item" style="text-align:center">
+                            <div style="font-size:.75rem;font-weight:700;opacity:.9">🕒Tempo</div>
+                            <div style="font-size:.95rem;font-weight:800">${displayTempo}</div>
+                        </div>
+                        <div class="meta-item" style="text-align:center">
+                            <div style="font-size:.75rem;font-weight:700;opacity:.9">🏃🏻‍♂️‍➡️Pace</div>
+                            <div style="font-size:.95rem;font-weight:800">${displayPace} /km</div>
+                        </div>
+                    </div>
                     <div class="zone-phrase">${phrase}</div>
                 </div>
             `;
             document.getElementById('nota').innerHTML = cardHtml;
-         } catch (error) {
-             document.getElementById('nota').textContent =
-                 `Erro: ${error.message}`;
-         }
+            // Exibe o botão copiar se o card existir
+            const copyBtn = document.getElementById('copyCardBtn');
+            if (document.querySelector('.share-card')) {
+                copyBtn.style.display = 'inline-block';
+            } else {
+                copyBtn.style.display = 'none';
+            }
+
+        } catch (error) {
+            document.getElementById('nota').textContent =
+                `Erro: ${error.message}`;
+        }
     });
 
     preencherTabelaReferencia();
@@ -254,7 +322,7 @@ function gerarGraficos() {
 
     // Intervalo de notas: 50 → 100 (a cada 5)
     const notas = [];
-    for (let n = 50; n <= 100; n += n>=90?1:5) notas.push(n);
+    for (let n = 50; n <= 100; n += n >= 90 ? 1 : 5) notas.push(n);
 
     const idade = parseInt(document.getElementById('idade')?.value) || 30;
     const distancias = [

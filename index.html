@@ -9,11 +9,11 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-8HJ2W33ZXE"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-      gtag('config', 'G-8HJ2W33ZXE');
+        gtag('config', 'G-8HJ2W33ZXE');
     </script>
 </head>
 
@@ -58,11 +58,15 @@
 
         <div id="resultado">
             <div id="nota"></div>
+            <div style="text-align:center; margin-top:10px;">
+                <button type="button" id="copyCardBtn" style="display:none;">📋 Compartilhar Card</button>
+            </div>
+
         </div>
 
-        <hr style="margin-top: 20px;"/>
+        <hr style="margin-top: 20px;" />
         <!-- Seção: temposRefOrig (inserida) -->
-        <div id="tempos-ref-orig"  class="tempos-ref-orig tabela-referencia">
+        <div id="tempos-ref-orig" class="tempos-ref-orig tabela-referencia">
             <h2>Metas Top</h2>
             <div id="temposRefOrigContent">
                 <!-- calc.js deve preencher este elemento com o conteúdo de temposRefOrig -->
@@ -173,6 +177,39 @@
     <script src="js/calc.js"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Biblioteca para capturar o div como imagem -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script>
+        document.getElementById('copyCardBtn').addEventListener('click', async () => {
+            const card = document.querySelector('.share-card');
+            if (!card) {
+                alert('Nenhum card gerado ainda!');
+                return;
+            }
+
+            try {
+                // Captura o div como imagem
+                const canvas = await html2canvas(card, {
+                    backgroundColor: null,
+                    scale: 2, // imagem mais nítida
+                    useCORS: true
+                });
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+                // Copia para a área de transferência
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]);
+
+                alert('✅ Card copiado para a área de transferência!');
+            } catch (err) {
+                console.error('Erro ao copiar card:', err);
+                alert('❌ Falha ao copiar o card. Verifique as permissões.');
+            }
+        });
+    </script>
+
     <script src="js/app.js"></script>
 </body>
 
