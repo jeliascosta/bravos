@@ -1,13 +1,13 @@
 // -------------------TABELAS DE REFERÊNCIA----------------------------
 
 // --- Tabela de referência (nota 100) ---
-const temposRefOrig = {
+const metasTop = {
     "2.4km": { idade: 30, tempo: "08:14", sexo: 'M' },
     "5km": { idade: 46, tempo: "26:40", sexo: 'F' },
     "10km": { idade: 38, tempo: "40:00", sexo: 'M' },
-    "meia": { idade: 45, tempo: "120:00", sexo: 'F' }
+    "meia": { idade: 46, tempo: "120:00", sexo: 'F' }
 };
-window.temposRefOrig = temposRefOrig; // Expor para index.html
+window.temposRefOrig = metasTop; // Expor para index.html
 
 // --- Mapear distâncias base para km ---
 const distanciasBase = {
@@ -62,7 +62,7 @@ const fatorIdadeMascMesclado = [
     { teto: 33, fator: 0.915 }, //CASNAV
     { teto: 39, fator: 0.931 }, //Marujo
     { teto: 45, fator: 1.000 }, //Marujo
-    { teto: 49, fator: 1.088 }, //Marujo
+    { teto: 49, fator: 1.088 }, //Naval
     { teto: 54, fator: 1.124 }, //Naval
     { teto: 60, fator: 1.276 }, //Marujo (sem divisão fina além de 50+)
 ];
@@ -100,8 +100,8 @@ const fatorSexo = [
     { teto: 25, fator: 1.167 }, //Marujo
     { teto: 33, fator: 1.200 }, //Marujo
     { teto: 39, fator: 1.185 }, //Marujo
-    { teto: 45, fator: 1.230 }, //Naval
-    { teto: 49, fator: 1.210 }, //Naval
+    { teto: 45, fator: 1.174 }, //Naval
+    { teto: 49, fator: 1.091 }, //Naval
     { teto: 54, fator: 1.220 }, //Naval
     { teto: 60, fator: 1.210 }  //Naval
 ];
@@ -168,11 +168,11 @@ function interpolarFatorIdadePorDistancia(idade, sexo) {
 
 /// --- Gera tempos ajustados por sexo, mas ainda na idade base ---
 const temposRefBase = {};
-for (const distancia in temposRefOrig) {
+for (const distancia in metasTop) {
     temposRefBase[distancia] = {};
-    const sexoOrig = temposRefOrig[distancia].sexo;
-    const idadeOrig = temposRefOrig[distancia].idade;
-    const tSegOrig = tempoParaSegundos(temposRefOrig[distancia].tempo);
+    const sexoOrig = metasTop[distancia].sexo;
+    const idadeOrig = metasTop[distancia].idade;
+    const tSegOrig = tempoParaSegundos(metasTop[distancia].tempo);
 
     for (const sexo of ['M', 'F']) {
         let tSeg = tSegOrig;
@@ -383,8 +383,8 @@ function calcularNotaPorPace(pace, idade, sexo, distancia) {
 
 function proporcaoPorNota(nota) {
     const proporcao100 = 1.0;
-    const proporcao90 = 1.179;
-    const proporcao70 = 1.438;
+    const proporcao90 = 1.18;
+    const proporcao70 = 1.42;
     const proporcao40 = 2.0; // valor de referência para notas muito baixas
 
     if (nota >= 100) return proporcao100;
