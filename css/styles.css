@@ -147,14 +147,23 @@ tr:hover {
 /* composição de imagem (print + card) */
 #compositor .compose-controls {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     margin: 8px 0;
 }
 
 #composeWrap {
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
     text-align: center;
-    border: 1px solid #ddd;
+    border: none;
+}
+
+/* Mais espaço lateral em telas pequenas para facilitar rolagem/gestos */
+@media (max-width: 600px) {
+  #composeWrap {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }
 
 #compositor .compose-upload {
@@ -321,13 +330,23 @@ tr:hover {
     font-weight: 900;
     /* letter-spacing: 0.08em; */
     font-size: 0.95rem;
+    /* integra ao visual do card como rodapé */
+    display: block;
     margin-top: 8px;
-    padding: 6px 12px;
-    border-radius: 999px;
+    /* expande até as bordas laterais e remove espaço inferior do padding do card */
+    margin-left: -5px;   /* anula padding horizontal do card (5px) */
+    margin-right: -5px;
+    margin-bottom: -10px;/* anula padding inferior do card (10px) para "fechar" o card */
+    padding: 10px 12px;  /* mais alto para parecer uma faixa de rodapé */
+    /* zera o raio superior e herda o inferior do card */
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
     background: rgba(255,255,255,0.10); /* leve "pill" para destacar */
     color: inherit;
     box-shadow: 0 6px 18px rgba(15,23,42,0.10);
-    backdrop-filter: blur(4px);
+    /* backdrop-filter: blur(4px); */
 }
 
 /* pequeno label de revisão ao lado de "Meu IGDCC" */

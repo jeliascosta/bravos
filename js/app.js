@@ -108,12 +108,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 '70-79': '🏃‍♂️👏 QUE TREINO TOP!! 👏🏃‍♂️',
                 '80-89': '🔥🏃‍♂️👉 SÉRIO ISSO?!! 👈🏃‍♂️🔥',
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
-                '100': '🏆🥇⚓ LENDÁRIO ⚓🥇🏆'
+                '100': '🏆🥇⚓ ÉPICO ⚓🥇🏆'
             };
             const frasesMulher = {
                 '70-79': '🏃‍♀️👏 QUE TREINO TOP!! 👏🏃‍♀️',
                 '80-89': '🔥🏃‍♀️👉 SÉRIO ISSO?!! 👈🏃‍♀️🔥',
-                '100': '🏆🥇⚓ LENDÁRIA ⚓🥇🏆'
+                '100': '🏆🥇⚓ ÉPICA ⚓🥇🏆'
             };
             const frases = sexo === 'F' ? { ...frasesHomem, ...frasesMulher } : frasesHomem;
 
@@ -519,7 +519,23 @@ function setupCompositor() {
 
     if (!input || !img || !overlay || !exportBtn || !wrap) return;
 
-    _compose = { input, img, overlay, exportBtn, wrap, scaleInput, scaleLabel, cardEl: null, dragging: false, dragOff: { x: 0, y: 0 }, baseWidth: null, frozenBaseWidth: null, scale: 100, metrics: null };
+    // cria contêiner interno sem padding/bordas para exportação
+    let exportRoot = wrap.querySelector('.compose-export-root');
+    if (!exportRoot) {
+        exportRoot = document.createElement('div');
+        exportRoot.className = 'compose-export-root';
+        exportRoot.style.position = 'relative';
+        exportRoot.style.display = 'inline-block';
+        exportRoot.style.padding = '0';
+        exportRoot.style.margin = '0';
+        exportRoot.style.border = 'none';
+        // mover img e overlay para dentro do exportRoot
+        if (img && img.parentElement === wrap) exportRoot.appendChild(img);
+        if (overlay && overlay.parentElement === wrap) exportRoot.appendChild(overlay);
+        wrap.appendChild(exportRoot);
+    }
+
+    _compose = { input, img, overlay, exportBtn, wrap, exportRoot, scaleInput, scaleLabel, cardEl: null, dragging: false, dragOff: { x: 0, y: 0 }, baseWidth: null, frozenBaseWidth: null, scale: 100, metrics: null };
 
     input.addEventListener('change', (e) => {
         const file = e.target.files && e.target.files[0];
@@ -593,8 +609,13 @@ function setupCompositor() {
     // mouse
     overlay.addEventListener('mousedown', (ev) => {
         if (!_compose.cardEl) return;
-        startDrag(ev.clientX, ev.clientY);
-        ev.preventDefault();
+        const rect = _compose.cardEl.getBoundingClientRect();
+        const inside = ev.clientX >= rect.left && ev.clientX <= rect.right && ev.clientY >= rect.top && ev.clientY <= rect.bottom;
+        if (inside) {
+            startDrag(ev.clientX, ev.clientY);
+            ev.preventDefault();
+        }
+        // se clicar fora do card, não inicia drag e não previne default: permite rolagem/seleção
     });
     window.addEventListener('mousemove', (ev) => moveDrag(ev.clientX, ev.clientY));
     window.addEventListener('mouseup', endDrag);
@@ -602,8 +623,15 @@ function setupCompositor() {
     overlay.addEventListener('touchstart', (ev) => {
         if (!ev.touches || !ev.touches[0]) return;
         const t = ev.touches[0];
-        startDrag(t.clientX, t.clientY);
-        ev.preventDefault();
+        if (_compose.cardEl) {
+            const rect = _compose.cardEl.getBoundingClientRect();
+            const inside = t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom;
+            if (inside) {
+                startDrag(t.clientX, t.clientY);
+                ev.preventDefault(); // só previne se for iniciar drag
+            }
+        }
+        // se tocar fora do card, não inicia drag e não previne default: permite rolagem
     }, { passive: false });
     window.addEventListener('touchmove', (ev) => {
         if (!ev.touches || !ev.touches[0]) return;
@@ -615,11 +643,12 @@ function setupCompositor() {
     exportBtn.addEventListener('click', async () => {
         if (!_compose || !_compose.img.src) return;
         try {
-            const canvas = await html2canvas(wrap, { backgroundColor: null, useCORS: true, scale: 2 });
-            const dataUrl = canvas.toDataURL('image/png');
+            const target = _compose.exportRoot || wrap;
+            const canvas = await html2canvas(target, { backgroundColor: null, useCORS: true, scale: 4 });
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
             const link = document.createElement('a');
             link.href = dataUrl;
-            link.download = 'igdcc-share.png';
+            link.download = 'igdcc-share.jpg';
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -738,6 +767,16 @@ function cloneShareCard(srcCard) {
         ];
         for (const p of props) clone.style[p] = cs[p];
     } catch(_) {}
+    // Ajuste específico do clone: espaçamento da frase da zona para print/export
+    try {
+        const zp = clone.querySelector('.zone-phrase');
+        if (zp) {
+            zp.style.marginTop = '12px';
+            // remover blur no clone (print/export)
+            zp.style.backdropFilter = 'none';
+            zp.style.webkitBackdropFilter = 'none';
+        }
+    } catch(_) {}
     return clone;
 }
 
@@ -804,6 +843,16 @@ function updateOverlayCardFromShareCard() {
         const s2 = (_compose.scale / 100);
         fresh.style.transformOrigin = 'top left';
         fresh.style.transform = `scale(${s2})`;
+        // Ajuste específico do clone atualizado: garantir margin-top da zone-phrase em 12px
+        try {
+            const zp2 = fresh.querySelector('.zone-phrase');
+            if (zp2) {
+                zp2.style.marginTop = '12px';
+                // remover blur no clone (print/export)
+                zp2.style.backdropFilter = 'none';
+                zp2.style.webkitBackdropFilter = 'none';
+            }
+        } catch(_) {}
         _compose.cardEl.replaceWith(fresh);
         _compose.cardEl = fresh;
     }
