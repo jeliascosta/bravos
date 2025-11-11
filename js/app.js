@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '70-79': '🏃‍♂️👏 QUE TREINO TOP!! 👏🏃‍♂️',
                 '80-89': '🔥🏃‍♂️👉 SÉRIO ISSO?!! 👈🏃‍♂️🔥',
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
-                '100': '🏆🥇⚓ Lenda Naval ⚓🥇🏆'
+                '100': '🏆🥇⚓ LENDÁRIA ⚓🥇🏆'
             };
             const frasesMulher = {
                 '70-79': '🏃‍♀️👏 QUE TREINO TOP!! 👏🏃‍♀️',
@@ -132,11 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const g = Math.round(ra[1] + (rb[1] - ra[1]) * t);
                 const bl = Math.round(ra[2] + (rb[2] - ra[2]) * t);
                 return rgbArrayToString([r, g, bl]);
-            }
-            // Função auxiliar para calcular luminance de RGB
-            function luminanceRgb(rgb) {
-                const [r, g, b] = rgbStringToArray(rgb);
-                return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
             }
 
             // paletas
