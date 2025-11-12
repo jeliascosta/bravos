@@ -15,7 +15,7 @@ function preencherTabelaParaSexo(tbodyId, sexoReferencia) {
         { label: '15', km: 15 },
         { label: 'Meia', km: 21.0975 }
     ];
-    
+
     for (let idade = 25; idade <= 60; idade += 5) {
         const tr = document.createElement('tr');
         let rowHtml = `<td>${idade} anos</td>`;
@@ -103,20 +103,36 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const frasesHomem = {
-                '50-59': '💪 BORA VIBRAR!!! 💪',
+                '50-59': '😁 BORA VIBRAR!!! 😁',
                 '60-69': '💪😁 ZONA 2, TÁ PAGO!! 😁💪',
                 '70-79': '🏃‍♂️👏 QUE TREINO TOP!! 👏🏃‍♂️',
                 '80-89': '🔥🏃‍♂️👉 SÉRIO ISSO?!! 👈🏃‍♂️🔥',
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
-                // '90-99': '⚡ DANGER ZONE ⚡',
                 '100': '🏆🥇⚓ ÉPICO ⚓🥇🏆'
             };
             const frasesMulher = {
+                ...frasesHomem,
                 '70-79': '🏃‍♀️👏 QUE TREINO TOP!! 👏🏃‍♀️',
                 '80-89': '🔥🏃‍♀️👉 SÉRIO ISSO?!! 👈🏃‍♀️🔥',
                 '100': '🏆🥇⚓ ÉPICA ⚓🥇🏆'
             };
-            const frases = sexo === 'F' ? { ...frasesHomem, ...frasesMulher } : frasesHomem;
+            const frasesCardPrint = {
+                '60-69': '💪 ZONA 2, PAGO!! 💪',
+                '80-89': '🔥 SÉRIO ISSO?!! 🔥',
+                '90-99': '⚡ DANGER ZONE ⚡',
+            }
+            const frasesHomemCardPrint = {
+                ...frasesHomem,
+                ...frasesCardPrint,
+                '70-79': '🏃‍♂️ Q TREINO TOP!! 🏃‍♂️',
+            }
+            const frasesMulherCardPrint = {
+                ...frasesMulher,
+                ...frasesCardPrint,
+                '70-79': '🏃‍♀️ Q TREINO TOP!! 🏃‍♀️',
+            }
+            const frases = sexo === 'F' ? frasesMulher : frasesHomem;
+            const frasesPrint = sexo === 'F' ? frasesMulherCardPrint : frasesHomemCardPrint;
 
             // utilitários de cor (RGB)
             function rgbStringToArray(rgb) {
@@ -195,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const zone = zonaLabel(inteiro);
             const phrase = frases[zone] || (inteiro >= 90 ? frases['90-100'] : 'Vibrando!');
+            const printPhrase = (frasesPrint && frasesPrint[zone]) ? frasesPrint[zone] : phrase;
 
             // calcular tempo / pace para exibir no card
             let displayTempo = '--:--', displayPace = '--:--';
@@ -231,6 +248,12 @@ document.addEventListener('DOMContentLoaded', function () {
             shareCardEl.style.background = `linear-gradient(180deg, ${bgStart}, ${bgEnd})`;
             shareCardEl.style.color = textColor;
             shareCardEl.style.display = 'block';
+            // Persistir dados para o clone usar a mesma frase de print que você definiu
+            try {
+                shareCardEl.dataset.zoneKey = zone;
+                shareCardEl.dataset.sexo = sexo;
+                shareCardEl.dataset.phrasePrint = printPhrase;
+            } catch(_) {}
 
             document.getElementById('cardDate').textContent = hoje;
             document.getElementById('scoreBig').textContent = inteiro;
@@ -255,6 +278,11 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 copyBtn.style.display = 'none';
             }
+            // Exibe a seção do compositor apenas após calcular a nota
+            try {
+                const compositor = document.getElementById('compositor');
+                if (compositor) compositor.style.display = 'block';
+            } catch (_) {}
             // Sincroniza o card no compositor com o novo conteúdo e largura
             try {
                 if (typeof updateOverlayCardFromShareCard === 'function') updateOverlayCardFromShareCard();
@@ -515,11 +543,15 @@ function setupCompositor() {
     const img = document.getElementById('composeImg');
     const overlay = document.getElementById('composeOverlay');
     const exportBtn = document.getElementById('composeExport');
+    const shareBtn = document.getElementById('composeShare');
     const wrap = document.getElementById('composeWrap');
     const scaleInput = document.getElementById('composeScale');
     const scaleLabel = document.getElementById('composeScaleLabel');
 
     if (!input || !img || !overlay || !exportBtn || !wrap) return;
+    // manter overlay invisível até que a imagem esteja carregada
+    try { overlay.style.visibility = 'hidden'; } catch (_) {}
+    if (shareBtn) shareBtn.disabled = true;
 
     // cria contêiner interno sem padding/bordas para exportação
     let exportRoot = wrap.querySelector('.compose-export-root');
@@ -544,15 +576,20 @@ function setupCompositor() {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
+            // aguardar renderização da imagem antes de criar/atualizar o card clonado
+            img.onload = () => {
+                img.style.display = 'block';
+                exportBtn.disabled = false;
+                if (shareBtn) shareBtn.disabled = false;
+                // só agora o overlay pode ficar visível
+                try { overlay.style.visibility = 'visible'; } catch (_) {}
+                if (!_compose.cardEl) {
+                    ensureOverlayCard();
+                } else {
+                    applyOverlayWidthFromBase();
+                }
+            };
             img.src = reader.result;
-            img.style.display = 'block';
-            exportBtn.disabled = false;
-            // Não recriar o overlay card ao carregar imagem para evitar drift de largura
-            if (!_compose.cardEl) {
-                ensureOverlayCard();
-            } else {
-                applyOverlayWidthFromBase();
-            }
         };
         reader.readAsDataURL(file);
     });
@@ -657,7 +694,7 @@ function setupCompositor() {
             const dx = a.clientX - b.clientX;
             const dy = a.clientY - b.clientY;
             const dist = Math.hypot(dx, dy) || 1;
-            const newScale = Math.max(40, Math.min(160, (_compose.pinchBaseScale || 100) * (dist / (_compose.pinchStartDist || 1))));
+            const newScale = Math.max(35, Math.min(160, (_compose.pinchBaseScale || 100) * (dist / (_compose.pinchStartDist || 1))));
             _compose.scale = newScale;
             if (_compose.cardEl) {
                 const s = (newScale / 100);
@@ -711,8 +748,57 @@ function setupCompositor() {
         }
     });
 
-    // cria card se já existir ao carregar
-    ensureOverlayCard();
+    if (shareBtn) {
+        shareBtn.addEventListener('click', async () => {
+            if (!_compose || !_compose.img.src) return;
+            try {
+                const target = _compose.exportRoot || wrap;
+                const canvas = await html2canvas(target, { backgroundColor: null, useCORS: true, scale: 3 });
+                const distEl = document.getElementById('scoreDistancia');
+                let distStr = (distEl && distEl.textContent) ? distEl.textContent.trim() : '';
+                distStr = distStr.replace(/\s+/g, '');
+                const notaEl = document.getElementById('scoreBig');
+                let notaStr = (notaEl && notaEl.textContent) ? notaEl.textContent.trim() : '';
+                notaStr = notaStr.replace(/\s+/g, '');
+                const now = new Date();
+                const dd = String(now.getDate()).padStart(2, '0');
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const yy = String(now.getFullYear()).slice(-2);
+                const filename = `igdcc-${notaStr}-${distStr}_${dd}-${mm}-${yy}.jpg`;
+
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+                if (!blob) throw new Error('Falha ao gerar imagem');
+                const file = new File([blob], filename, { type: 'image/jpeg' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'IGDCC',
+                        text: 'Meu print do IGDCC'
+                    });
+                    return;
+                }
+                if (navigator.share) {
+                    // Fallback: compartilhar um data URL (alguns ambientes aceitam)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                    await navigator.share({
+                        title: 'IGDCC',
+                        text: 'Meu print do IGDCC',
+                        url: dataUrl
+                    });
+                    return;
+                }
+                // Fallback final: abrir em nova aba para o usuário salvar/compartilhar manualmente
+                const dataUrl = URL.createObjectURL(blob);
+                window.open(dataUrl, '_blank');
+            } catch (e) {
+                console.error('Falha ao compartilhar:', e);
+                alert('Compartilhamento não suportado neste dispositivo/navegador.');
+            }
+        });
+    }
+
+    // criação do card no overlay ocorre somente após a imagem ser carregada (img.onload)
 }
 
 function ensureOverlayCard() {
@@ -735,12 +821,8 @@ function ensureOverlayCard() {
         let setWidth = totalW;
         if (cs.boxSizing === 'content-box') setWidth = Math.max(0, totalW - hPadding - hBorder);
         _compose.cardEl.style.boxSizing = cs.boxSizing;
-        _compose.cardEl.style.maxWidth = 'none';
         _compose.cardEl.style.left = posLeft || '16px';
         _compose.cardEl.style.top = posTop || '16px';
-        _compose.cardEl.style.width = setWidth + 'px';
-        _compose.cardEl.style.minWidth = setWidth + 'px';
-        _compose.cardEl.style.maxWidth = setWidth + 'px';
         // reaplica escala atual
         const s = (_compose.scale / 100);
         _compose.cardEl.style.transformOrigin = 'top left';
@@ -820,10 +902,15 @@ function cloneShareCard(srcCard) {
         ];
         for (const p of props) clone.style[p] = cs[p];
     } catch (_) { }
-    // Ajuste específico do clone: espaçamento da frase da zona para print/export
+    // Ajuste específico do clone: aplicar frasesPrint e espaçamento/estilos da zone-phrase para print/export
     try {
         const zp = clone.querySelector('.zone-phrase');
         if (zp) {
+            // usar a frase de print já resolvida no card original
+            try {
+                const pf = (srcCard && srcCard.dataset && srcCard.dataset.phrasePrint) || '';
+                if (pf) zp.textContent = pf;
+            } catch (_) { }
             zp.style.marginTop = '12px';
             // remover blur no clone (print/export)
             zp.style.backdropFilter = 'none';
@@ -831,7 +918,7 @@ function cloneShareCard(srcCard) {
         }
     } catch (_) { }
     // Distribui emojis somente no clone e não para nota 100
-    try { distributeZoneEmojisOnCard(clone); } catch(_) {}
+    try { distributeZoneEmojisOnCard(clone); } catch (_) { }
     return clone;
 }
 
@@ -963,22 +1050,23 @@ function updateOverlayCardFromShareCard() {
         };
         // manter largura base e aplicar escala via transform
         fresh.style.boxSizing = cs.boxSizing;
-        fresh.style.maxWidth = 'none';
         const hPadding = num(cs.paddingLeft) + num(cs.paddingRight);
         const hBorder = num(cs.borderLeftWidth) + num(cs.borderRightWidth);
         let baseContent = _compose.baseWidth || fresh.getBoundingClientRect().width;
         if (cs.boxSizing === 'content-box') baseContent = Math.max(0, (_compose.baseWidth || 0) - hPadding - hBorder);
-        fresh.style.width = baseContent + 'px';
-        fresh.style.minWidth = baseContent + 'px';
-        fresh.style.maxWidth = baseContent + 'px';
         // aplica escala atual
         const s2 = (_compose.scale / 100);
         fresh.style.transformOrigin = 'top left';
         fresh.style.transform = `scale(${s2})`;
-        // Ajuste específico do clone atualizado: garantir margin-top da zone-phrase em 12px e sem blur
+        // Ajuste específico do clone atualizado: aplicar frasesPrint e garantir margin-top da zone-phrase em 12px e sem blur
         try {
             const zp2 = fresh.querySelector('.zone-phrase');
             if (zp2) {
+                // usar a frase de print já persistida no card original
+                try {
+                    const pf2 = (srcCard && srcCard.dataset && srcCard.dataset.phrasePrint) || '';
+                    if (pf2) zp2.textContent = pf2;
+                } catch (_) { }
                 zp2.style.marginTop = '12px';
                 zp2.style.backdropFilter = 'none';
                 zp2.style.webkitBackdropFilter = 'none';
@@ -1001,10 +1089,6 @@ function applyOverlayWidthFromBase() {
     let baseContent = _compose.baseWidth;
     if (cs.boxSizing === 'content-box') baseContent = Math.max(0, _compose.baseWidth - hPadding - hBorder);
     _compose.cardEl.style.boxSizing = cs.boxSizing;
-    _compose.cardEl.style.maxWidth = 'none';
-    _compose.cardEl.style.width = baseContent + 'px';
-    _compose.cardEl.style.minWidth = baseContent + 'px';
-    _compose.cardEl.style.maxWidth = baseContent + 'px';
     // aplica escala
     const s = (_compose.scale / 100);
     _compose.cardEl.style.transformOrigin = 'top left';
@@ -1028,10 +1112,6 @@ function recalibrateOverlayWidthFromSource() {
         let baseContent = _compose.baseWidth;
         if (cs.boxSizing === 'content-box') baseContent = Math.max(0, _compose.baseWidth - hPadding - hBorder);
         _compose.cardEl.style.boxSizing = cs.boxSizing;
-        _compose.cardEl.style.maxWidth = 'none';
-        _compose.cardEl.style.width = baseContent + 'px';
-        _compose.cardEl.style.minWidth = baseContent + 'px';
-        _compose.cardEl.style.maxWidth = baseContent + 'px';
         const s = (_compose.scale / 100);
         _compose.cardEl.style.transformOrigin = 'top left';
         _compose.cardEl.style.transform = `scale(${s})`;

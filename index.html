@@ -95,19 +95,23 @@
 
         </div>
 
-        <div id="compositor" style="margin-top: 16px;">
+        <div id="compositor" style="margin-top: 45px; display: none;">
+            <h3>Combine com o print do app de corrida:</h3>
             <div class="compose-controls">
                 <input type="file" id="composeInput" accept="image/*" class="compose-upload">
-                <label for="composeScale" style="display:inline-flex; align-items:center; gap:6px;">
-                    Tamanho do card
-                    <input type="range" id="composeScale" min="40" max="160" value="100" step="1" style="width:140px;">
+                <label for="composeScale" style="white-space: nowrap; display:flex; align-items:center; gap:6px; width:100%;">
+                    Tamanho do card:
+                    <input type="range" id="composeScale" min="35" max="160" value="100" step="1" style="width:100%;">
                     <span id="composeScaleLabel">100%</span>
                 </label>
-                <button type="button" id="composeExport" class="compose-export" disabled>Baixar imagem</button>
+                <div style="display:flex; gap:8px; width:100%; align-items:stretch;">
+                    <button type="button" id="composeExport" class="compose-export" style="flex:1 1 0;" disabled>💾 Baixar Print</button>
+                    <button type="button" id="composeShare" class="compose-export" style="flex:1 1 0;" disabled>📤 Compartilhar Print</button>
+                </div>
             </div>
             <div id="composeWrap" style="position: relative; display: inline-block;">
                 <img id="composeImg" alt="" style="max-width: 100%; height: auto; display: none;">
-                <div id="composeOverlay" style="position: absolute; inset: 0; pointer-events: auto;"></div>
+                <div id="composeOverlay" style="position: absolute; inset: 0; pointer-events: auto; visibility: hidden;"></div>
             </div>
         </div>
 

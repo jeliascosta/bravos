@@ -13,13 +13,18 @@ body {
 .share-card .card-corner{
     position: absolute;
     bottom: 43px; /* acima da faixa zone-phrase */
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     font-weight: 700;
     opacity: 0.9;
     pointer-events: none; /* não captura cliques/gestos */
 }
-.share-card .card-corner-left{ left: 10px; }
-.share-card .card-corner-right{ right: 10px; }
+
+.share-card .card-corner div{
+    margin-top: 10px;
+}
+
+.share-card .card-corner-left{ left: 5px; }
+.share-card .card-corner-right{ right: 5px; }
 
 .container {
     max-width: 600px;
@@ -343,6 +348,7 @@ tr:hover {
     font-weight: 900;
     /* letter-spacing: 0.08em; */
     font-size: 0.95rem;
+    white-space: nowrap;
     /* integra ao visual do card como rodapé */
     display: block;
     margin-top: 8px;
