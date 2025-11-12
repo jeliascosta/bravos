@@ -535,7 +535,7 @@ function setupCompositor() {
         wrap.appendChild(exportRoot);
     }
 
-    _compose = { input, img, overlay, exportBtn, wrap, exportRoot, scaleInput, scaleLabel, cardEl: null, dragging: false, dragOff: { x: 0, y: 0 }, baseWidth: null, frozenBaseWidth: null, scale: 100, metrics: null };
+    _compose = { input, img, overlay, exportBtn, wrap, exportRoot, scaleInput, scaleLabel, cardEl: null, dragging: false, dragOff: { x: 0, y: 0 }, baseWidth: null, frozenBaseWidth: null, scale: 100, metrics: null, isPinching: false, pinchStartDist: 0, pinchBaseScale: 100 };
 
     input.addEventListener('change', (e) => {
         const file = e.target.files && e.target.files[0];
@@ -622,6 +622,19 @@ function setupCompositor() {
     // touch
     overlay.addEventListener('touchstart', (ev) => {
         if (!ev.touches || !ev.touches[0]) return;
+        // Pinch: 2+ dedos iniciam zoom
+        if (ev.touches.length >= 2) {
+            const a = ev.touches[0];
+            const b = ev.touches[1];
+            const dx = a.clientX - b.clientX;
+            const dy = a.clientY - b.clientY;
+            _compose.isPinching = true;
+            _compose.pinchStartDist = Math.hypot(dx, dy) || 1;
+            _compose.pinchBaseScale = _compose.scale || 100;
+            ev.preventDefault();
+            return;
+        }
+        // Drag com 1 dedo somente se iniciar dentro do card
         const t = ev.touches[0];
         if (_compose.cardEl) {
             const rect = _compose.cardEl.getBoundingClientRect();
@@ -635,10 +648,37 @@ function setupCompositor() {
     }, { passive: false });
     window.addEventListener('touchmove', (ev) => {
         if (!ev.touches || !ev.touches[0]) return;
+        // Se pinch ativo e dois dedos, ajustar escala
+        if (_compose && _compose.isPinching && ev.touches.length >= 2) {
+            const a = ev.touches[0];
+            const b = ev.touches[1];
+            const dx = a.clientX - b.clientX;
+            const dy = a.clientY - b.clientY;
+            const dist = Math.hypot(dx, dy) || 1;
+            const newScale = Math.max(40, Math.min(160, (_compose.pinchBaseScale || 100) * (dist / (_compose.pinchStartDist || 1))));
+            _compose.scale = newScale;
+            if (_compose.cardEl) {
+                const s = (newScale / 100);
+                _compose.cardEl.style.transformOrigin = 'top left';
+                _compose.cardEl.style.transform = `scale(${s})`;
+            }
+            if (_compose.scaleInput) {
+                _compose.scaleInput.value = String(Math.round(newScale));
+                if (_compose.scaleLabel) _compose.scaleLabel.textContent = `${Math.round(newScale)}%`;
+            }
+            ev.preventDefault();
+            return;
+        }
+        // Caso contrário, processa drag com 1 dedo
         const t = ev.touches[0];
         moveDrag(t.clientX, t.clientY);
     }, { passive: false });
-    window.addEventListener('touchend', endDrag);
+    window.addEventListener('touchend', (ev) => {
+        if (_compose && ev.touches && ev.touches.length < 2) {
+            _compose.isPinching = false;
+        }
+        endDrag();
+    });
 
     exportBtn.addEventListener('click', async () => {
         if (!_compose || !_compose.img.src) return;
