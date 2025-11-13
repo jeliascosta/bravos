@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const frasesHomem = {
                 '50-59': '😁 VIBRANDO!!! 😁',
-                '60-69': '🎯😁 ZONA 2, TÁ PAGO!! 😁🎯',
+                '60-69': '🎯💪 ZONA 2, TÁ PAGO!! 💪🎯',
                 '70-79': '🏃‍♂️👏 QUE TREINO TOP!! 👏🏃‍♂️',
                 '80-89': '🔥🏃‍♂️👉 SÉRIO ISSO?!! 👈🏃‍♂️🔥',
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
@@ -610,7 +610,7 @@ function configurarCompositor() {
 
     // parâmetros reutilizáveis para exportar/compartilhar o PRINT (compositor)
     let EXPORT_SCALE_PADRAO = 3;
-    const EXPORT_LARGURA_ALVO = 2000;
+    const EXPORT_LARGURA_ALVO = 3000;
     const EXPORT_MIME = 'image/png';
     const EXPORT_QUALITY = 0.92;
 

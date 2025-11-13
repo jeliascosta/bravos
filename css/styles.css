@@ -365,7 +365,7 @@ tr:hover {
     background: rgba(255,255,255,0.10); /* leve "pill" para destacar */
     color: inherit;
     box-shadow: 0 6px 18px rgba(15,23,42,0.10);
-    /* backdrop-filter: blur(4px); */
+    white-space: pre;
 }
 
 /* pequeno label de revisão ao lado de "Meu IGDCC" */
