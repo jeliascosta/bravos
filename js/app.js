@@ -1134,11 +1134,13 @@ function clonarCardCompartilhar(srcCard) {
     
     // Adicionar pontos Hustle acima da zone-phrase
     try {
-        // Obter o elemento dos pontos Hustle do card original
+        // Verificar se os pontos Hustle devem ser exibidos
+        const showHustlePoints = localStorage.getItem('showHustlePoints') !== 'false'; // true por padrão
         const srcHustlePoints = srcCard.querySelector('#cardHustle');
         const zp = clone.querySelector('.zone-phrase');
         
-        if (srcHustlePoints && srcHustlePoints.textContent && srcHustlePoints.textContent !== '-' && zp) {
+        if (showHustlePoints && srcHustlePoints && srcHustlePoints.textContent && 
+            srcHustlePoints.textContent.trim() !== '-' && zp) {
             const hustlePoints = srcHustlePoints.textContent.trim();
             
             // Criar container para os pontos Hustle
@@ -1341,34 +1343,43 @@ function atualizarCardOverlayDoShareCard() {
                 zp2.style.webkitBackdropFilter = 'none';
             }
             // Garantir que os pontos Hustle estejam presentes no card atualizado
-            const existingHustle = fresh.querySelector('.hustle-points-display');
-            if (!existingHustle) {
-                const srcHustlePoints = srcCard.querySelector('#cardHustle');
-                if (srcHustlePoints && srcHustlePoints.textContent && srcHustlePoints.textContent !== '-') {
-                    const hustlePoints = srcHustlePoints.textContent.trim();
-                    const hustleDiv = document.createElement('div');
-                    hustleDiv.className = 'hustle-points-display';
-                    hustleDiv.style.textAlign = 'center';
-                    hustleDiv.style.margin = '10px 0 5px 0';
-                    hustleDiv.style.fontSize = '1.2rem';
-                    hustleDiv.style.fontWeight = 'bold';
-                    hustleDiv.style.color = srcHustlePoints.style.color || '';
-                    
-                    const hustleIcon = document.createElement('span');
-                    hustleIcon.textContent = '🔥 ';
-                    hustleIcon.style.display = 'inline-block';
-                    
-                    const hustleText = document.createElement('span');
-                    hustleText.textContent = hustlePoints.endsWith('pts') ? hustlePoints : `${hustlePoints} pts`;
-                    
-                    hustleDiv.appendChild(hustleIcon);
-                    hustleDiv.appendChild(hustleText);
-                    
-                    // Inserir antes da zone-phrase
-                    const zp = fresh.querySelector('.zone-phrase');
-                    if (zp) {
-                        zp.parentNode.insertBefore(hustleDiv, zp);
+            const showHustlePoints = localStorage.getItem('showHustlePoints') !== 'false'; // true por padrão
+            if (showHustlePoints) {
+                const existingHustle = fresh.querySelector('.hustle-points-display');
+                if (!existingHustle) {
+                    const srcHustlePoints = srcCard.querySelector('#cardHustle');
+                    if (srcHustlePoints && srcHustlePoints.textContent && srcHustlePoints.textContent.trim() !== '-') {
+                        const hustlePoints = srcHustlePoints.textContent.trim();
+                        const hustleDiv = document.createElement('div');
+                        hustleDiv.className = 'hustle-points-display';
+                        hustleDiv.style.textAlign = 'center';
+                        hustleDiv.style.margin = '10px 0 5px 0';
+                        hustleDiv.style.fontSize = '1.2rem';
+                        hustleDiv.style.fontWeight = 'bold';
+                        hustleDiv.style.color = srcHustlePoints.style.color || '';
+                        
+                        const hustleIcon = document.createElement('span');
+                        hustleIcon.textContent = '🔥 ';
+                        hustleIcon.style.display = 'inline-block';
+                        
+                        const hustleText = document.createElement('span');
+                        hustleText.textContent = hustlePoints.endsWith('pts') ? hustlePoints : `${hustlePoints} pts`;
+                        
+                        hustleDiv.appendChild(hustleIcon);
+                        hustleDiv.appendChild(hustleText);
+                        
+                        // Inserir antes da zone-phrase
+                        const zp = fresh.querySelector('.zone-phrase');
+                        if (zp) {
+                            zp.parentNode.insertBefore(hustleDiv, zp);
+                        }
                     }
+                }
+            } else {
+                // Remover pontos Hustle se existirem e o toggle estiver desativado
+                const existingHustle = fresh.querySelector('.hustle-points-display');
+                if (existingHustle) {
+                    existingHustle.remove();
                 }
             }
         } catch (e) {
