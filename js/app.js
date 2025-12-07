@@ -1107,27 +1107,26 @@ function garantirCardOverlay() {
     }
 }
 
-function clonarCardCompartilhar(srcCard) {
-    const clone = srcCard.cloneNode(true);
-    // remove id do próprio nó e de todos os descendentes para evitar duplicatas no DOM
-    const stripIds = (el) => {
+function prepararCardClonado(srcCard, clone) {
+    // strip IDs do clone inteiro
+    (function stripIds(el) {
         if (el.nodeType !== 1) return;
         if (el.id) el.removeAttribute('id');
         const children = el.children || [];
         for (let i = 0; i < children.length; i++) stripIds(children[i]);
-    };
-    stripIds(clone);
+    })(clone);
+
     // remove a seção de meta do card no clone (print não deve exibir)
     try {
         const metas = clone.querySelectorAll('.card-meta');
         metas.forEach(n => n.remove());
     } catch (_) { }
+
+    // Configurações de estilo comuns
     clone.style.display = 'block';
-    clone.style.position = 'absolute';
-    clone.style.pointerEvents = 'none'; // evita capturar cliques internos, drag é pelo overlay
-    // garantir mesmas cores inline aplicadas no original
     clone.style.background = srcCard.style.background;
     clone.style.color = srcCard.style.color;
+    
     // Copiar propriedades tipográficas para evitar variações por contexto
     try {
         const cs = window.getComputedStyle(srcCard);
@@ -1193,9 +1192,18 @@ function clonarCardCompartilhar(srcCard) {
             zp.style.webkitBackdropFilter = 'none';
         }
     } catch (_) { }
-    
+
     // Distribui emojis somente no clone e não para nota 100
     try { distribuirEmojisDaZonaNoCard(clone); } catch (_) { }
+
+    return clone;
+}
+
+function clonarCardCompartilhar(srcCard) {
+    const clone = srcCard.cloneNode(true);
+    prepararCardClonado(srcCard, clone);
+    clone.style.position = 'absolute';
+    clone.style.pointerEvents = 'none'; // evita capturar cliques internos, drag é pelo overlay
     return clone;
 }
 
@@ -1293,29 +1301,14 @@ function atualizarCardOverlayDoShareCard() {
     if (_compose.cardEl) {
         // Atualiza conteúdo textual do clone para refletir mudanças
         const fresh = srcCard.cloneNode(true);
-        // strip IDs do clone inteiro
-        (function stripIds(el) { if (el.nodeType !== 1) return; if (el.id) el.removeAttribute('id'); const kids = el.children || []; for (let i = 0; i < kids.length; i++) stripIds(kids[i]); })(fresh);
-        // remove a seção de meta do card no clone (print não deve exibir)
-        try {
-            const metas2 = fresh.querySelectorAll('.card-meta');
-            metas2.forEach(n => n.remove());
-        } catch (_) { }
-        fresh.style.display = 'block';
+        prepararCardClonado(srcCard, fresh);
+        
+        // Configurações específicas do overlay
         fresh.style.position = 'absolute';
         fresh.style.left = _compose.cardEl.style.left || '16px';
         fresh.style.top = _compose.cardEl.style.top || '16px';
-        fresh.style.background = srcCard.style.background;
-        fresh.style.color = srcCard.style.color;
         fresh.style.pointerEvents = 'none';
-        // Copiar propriedades tipográficas para evitar variações por contexto
-        try {
-            const cs2 = window.getComputedStyle(srcCard);
-            const props2 = [
-                'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'wordSpacing',
-                'fontStretch', 'fontVariant', 'fontKerning', 'textTransform', 'textRendering'
-            ];
-            for (const p of props2) fresh.style[p] = cs2[p];
-        } catch (_) { }
+        
         // Atualiza apenas metrics; mantém baseWidth congelada
         const cs = window.getComputedStyle(srcCard);
         _compose.baseWidth = (_compose.frozenBaseWidth != null) ? _compose.frozenBaseWidth : _compose.baseWidth;
@@ -1325,74 +1318,19 @@ function atualizarCardOverlayDoShareCard() {
             hPadding: num(cs.paddingLeft) + num(cs.paddingRight),
             hBorder: num(cs.borderLeftWidth) + num(cs.borderRightWidth)
         };
+        
         // manter largura base e aplicar escala via transform
         fresh.style.boxSizing = cs.boxSizing;
         const hPadding = num(cs.paddingLeft) + num(cs.paddingRight);
         const hBorder = num(cs.borderLeftWidth) + num(cs.borderRightWidth);
         let baseContent = _compose.baseWidth || fresh.getBoundingClientRect().width;
         if (cs.boxSizing === 'content-box') baseContent = Math.max(0, (_compose.baseWidth || 0) - hPadding - hBorder);
+        
         // aplica escala atual
         const s2 = (_compose.scale / 100);
         fresh.style.transformOrigin = 'top left';
         fresh.style.transform = `scale(${s2})`;
-        // Ajuste específico do clone atualizado: aplicar frasesPrint e garantir margin-top da zone-phrase e sem blur
-        try {
-            const zp2 = fresh.querySelector('.zone-phrase');
-            if (zp2) {
-                // usar a frase de print já persistida no card original
-                try {
-                    const pf2 = (srcCard && srcCard.dataset && srcCard.dataset.phrasePrint) || '';
-                    if (pf2) zp2.textContent = pf2;
-                } catch (_) { }
-                zp2.style.marginTop = '5px'; // Reduzido para acomodar os pontos Hustle
-                zp2.style.backdropFilter = 'none';
-                zp2.style.webkitBackdropFilter = 'none';
-            }
-            // Garantir que os pontos Hustle estejam presentes no card atualizado
-            const showHustlePoints = localStorage.getItem('showHustlePoints') !== 'false'; // true por padrão
-            if (showHustlePoints) {
-                const existingHustle = fresh.querySelector('.hustle-points-display');
-                if (!existingHustle) {
-                    const srcHustlePoints = srcCard.querySelector('#cardHustle');
-                    if (srcHustlePoints && srcHustlePoints.textContent && srcHustlePoints.textContent.trim() !== '-') {
-                        const hustlePoints = srcHustlePoints.textContent.trim();
-                        const hustleDiv = document.createElement('div');
-                        hustleDiv.className = 'hustle-points-display';
-                        hustleDiv.style.textAlign = 'center';
-                        hustleDiv.style.margin = '10px 0 5px 0';
-                        hustleDiv.style.fontSize = '1.2rem';
-                        hustleDiv.style.fontWeight = 'bold';
-                        hustleDiv.style.color = srcHustlePoints.style.color || '';
-                        
-                        const hustleIcon = document.createElement('span');
-                        hustleIcon.textContent = '🔥 ';
-                        hustleIcon.style.display = 'inline-block';
-                        
-                        const hustleText = document.createElement('span');
-                        hustleText.textContent = hustlePoints.endsWith('pts') ? hustlePoints : `${hustlePoints} pts`;
-                        
-                        hustleDiv.appendChild(hustleIcon);
-                        hustleDiv.appendChild(hustleText);
-                        
-                        // Inserir antes da zone-phrase
-                        const zp = fresh.querySelector('.zone-phrase');
-                        if (zp) {
-                            zp.parentNode.insertBefore(hustleDiv, zp);
-                        }
-                    }
-                }
-            } else {
-                // Remover pontos Hustle se existirem e o toggle estiver desativado
-                const existingHustle = fresh.querySelector('.hustle-points-display');
-                if (existingHustle) {
-                    existingHustle.remove();
-                }
-            }
-        } catch (e) {
-            console.error('Erro ao atualizar card com pontos Hustle:', e);
-        }
-        // Distribui emojis somente no clone e não para nota 100
-        try { distribuirEmojisDaZonaNoCard(fresh); } catch (_) { }
+        
         _compose.cardEl.replaceWith(fresh);
         _compose.cardEl = fresh;
     }
