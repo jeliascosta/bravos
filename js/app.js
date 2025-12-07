@@ -1,5 +1,27 @@
 // app.js
 
+
+/**
+ * Calcula os pontos Hustle com base na distância percorrida e nota IGDCC
+ * @param {number} distancia - Distância em quilômetros
+ * @param {number} notaIGDCC - Nota no IGDCC (0-100)
+ * @returns {number} - Pontos Hustle escalonados pela nota
+ */
+function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
+    if (!distancia || isNaN(distancia) || !notaIGDCC || isNaN(notaIGDCC)) return 0;
+
+    // Calculate the IGDCC score for a 7:00 min/km pace with user's parameters
+    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual);
+    let notaBase = notaBaseF;
+
+    // Use the base score in the scaling factor
+    const fatorEscala = notaIGDCC / notaBase;
+    console.log("Nota base para pts hustle:", notaBase, "fator escala:", fatorEscala)
+
+    // 1 point base per 0.675 km (GymRats standard), scaled (positivamente) by IGDCC factor
+    return (distancia / 0.6755) * (fatorEscala > 1 ? fatorEscala : 1);
+}
+
 const tituloGraficos = document.getElementById('titulo-graficos');
 const inputIdade = document.getElementById('idade');
 
@@ -10,7 +32,7 @@ function atualizarEmojisPorSexo(sexo) {
     if (labelSexo) {
         labelSexo.innerHTML = sexo === 'M' ? '👨 Sexo:' : '👩 Sexo:';
     }
-    
+
     // Atualiza emoji no título IGDCC
     const tituloIGDCC = document.querySelector('h1');
     if (tituloIGDCC) {
@@ -201,8 +223,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 const pace = document.getElementById('pace').value;
                 nota = calcularNotaPorPace(pace, idade, sexo, distancia);
             }
+
             // Renderiza a "share card" estilo app de corrida
-            const inteiro = Math.max(0, Math.min(100, Math.floor(Number(nota) || 0)));
+            const notaInteiro = Math.max(0, Math.min(100, Math.floor(Number(nota) || 0)));
+
+            // Calcula os pontos Hustle
+            const pontosHustle = calcularPontosHustle(distancia, notaInteiro, idade, distancia);
+
+            // Atualiza a exibição dos pontos Hustle no card
+            const cardHustle = document.getElementById('cardHustle');
+            if (cardHustle) {
+                const pontosFormatados = pontosHustle.toFixed(2).replace('.', ',');
+                cardHustle.textContent = `${pontosFormatados} pts`;
+            }
 
             // zona de exemplo: décadas, 90+ é "90-100"
             function rotuloZona(n) {
@@ -277,32 +310,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             let bgStart, bgEnd;
-            if (inteiro === 100) {
+            if (notaInteiro === 100) {
                 bgStart = gold;
                 bgEnd = gold;
             }
-            else if (inteiro < 90) {
+            else if (notaInteiro < 90) {
                 // Ajuste: o visual da nota 83 passa a ocorrer em 80, mantendo a variação final de 89
-                if (inteiro < 80) {
+                if (notaInteiro < 80) {
                     // 40–79: pale -> strong (commit mapeado), t = (n-40)/40
-                    const t = Math.max(0, Math.min(1, (inteiro - 40) / 40)); // 0..1 (40->80)
+                    const t = Math.max(0, Math.min(1, (notaInteiro - 40) / 40)); // 0..1 (40->80)
                     bgStart = interpolarRgb(pale, strong, t);
                     bgEnd = interpolarRgb(pale, strong, Math.max(0, t * 0.2));
                 } else {
                     // 80–89: deslocar a cor de 85 para ocorrer em 80 e manter 89 igual
                     // t2(80) = (85-80)/9 = 5/9, t2(89) = 1  => t2 = 5/9 + (n-80)*(4/81)
-                    const t2 = Math.max(0, Math.min(1, (5 / 9) + (inteiro - 80) * (4 / 81)));
+                    const t2 = Math.max(0, Math.min(1, (5 / 9) + (notaInteiro - 80) * (4 / 81)));
                     bgStart = interpolarRgb(sexo === 'F' ? strong : strongM80, sexo === 'F' ? gold : goldM80, Math.min(1, t2 * 0.2));
                     bgEnd = interpolarRgb(sexo === 'F' ? strong : strongM80, sexo === 'F' ? gold : goldM80, t2);
                 }
             }
             else {
                 // >= 90: manter lógica atual de pretos e ouro
-                if (inteiro < 95) {
-                    const t = (inteiro - 90) / 5; // 0..1 (90->95)
+                if (notaInteiro < 95) {
+                    const t = (notaInteiro - 90) / 5; // 0..1 (90->95)
                     bgStart = interpolarRgb(black90Start, black, t);
                     bgEnd = interpolarRgb(black90End, black, t);
-                } else if (inteiro < 100) {
+                } else if (notaInteiro < 100) {
                     bgStart = black;
                     bgEnd = black;
                 }
@@ -310,18 +343,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // cor do texto — fixa por sexo para < 90 (sem variação por luminância)
             let textColor;
-            if (inteiro === 100) {
+            if (notaInteiro === 100) {
                 textColor = sexo === 'F' ? '#2c0045ff' : '#002157ff';
             }
-            else if (inteiro < 90) {
+            else if (notaInteiro < 90) {
                 textColor = sexo === 'F' ? 'rgb(54, 0, 96)' : 'rgb(0, 37, 96)';
             } else {
                 // 90–99: manter cores claras atuais por sexo
                 textColor = sexo === 'F' ? 'rgb(230, 180, 204)' : 'rgb(156, 202, 221)';
             }
 
-            const zone = rotuloZona(inteiro);
-            const phrase = frases[zone] || (inteiro >= 90 ? frases['90-100'] : '💪 BORA VIBRAR! 💪');
+            const zone = rotuloZona(notaInteiro);
+            const phrase = frases[zone] || (notaInteiro >= 90 ? frases['90-100'] : '💪 BORA VIBRAR! 💪');
             const printPhrase = (frasesPrint && frasesPrint[zone]) ? frasesPrint[zone] : phrase;
 
             // calcular tempo / pace para exibir no card
@@ -341,11 +374,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } catch (e) { /* segura se inputs faltarem */ }
 
-
             const distLabel = Number.isFinite(distancia)
                 ? (parseFloat(distancia.toFixed(1)) % 1 === 0 ? `${distancia.toFixed(0)} k` : `${distancia.toFixed(1)} k`)
                 : '-- k';
-
 
             const hoje = (() => {
                 const d = new Date();
@@ -368,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             document.getElementById('cardDate').textContent = hoje;
-            document.getElementById('scoreBig').textContent = inteiro;
+            document.getElementById('scoreBig').textContent = notaInteiro;
             document.getElementById('scoreDistancia').textContent = distLabel;
             document.getElementById('zoneSmall').textContent = zone;
             document.getElementById('cardTempo').textContent = displayTempo;
@@ -377,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function () {
             zonePhraseEl.textContent = phrase;
 
             // Aplicar cor rgb(254, 240, 165) quando a nota estiver entre 90 e 99
-            if (inteiro >= 90 && inteiro < 100) {
+            if (notaInteiro >= 90 && notaInteiro < 100) {
                 zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
             } else {
                 zonePhraseEl.style.color = ''; // resetar para cor padrão
