@@ -10,21 +10,28 @@
 function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
     if (!distancia || isNaN(distancia) || !notaIGDCC || isNaN(notaIGDCC)) return 0;
 
-    // Calculate the IGDCC score for a 7:00 min/km pace with user's parameters
-    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual);
-    let notaBase = notaBaseF;
-
     const deltaCorrida = 0.6755; //km
     const deltaCaminhada = 0.9655; //km
     let deltaEsforco = deltaCorrida;
-    if (notaIGDCC < notaBase)
-        deltaEsforco = deltaCaminhada;
 
-    // Use the base score in the scaling factor
+    // Verificar se é treino intervalado
+    const isIntervalado = document.getElementById('intervalado')?.value === 'sim';
+    
+    // Se for intervalado, retornar apenas a distância / deltaEsforco (fatorEscala = 1)
+    if (isIntervalado) {
+        return (distancia / deltaEsforco);
+    }
+
+    // Cálculo normal para treinos contínuos
+    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual);
+    let notaBase = notaBaseF;
+
+    // if (notaIGDCC < notaBase)
+    //     deltaEsforco = deltaCaminhada;
+
     const fatorEscala = notaIGDCC / notaBase;
     console.log("Nota base para pts hustle:", notaBase, "fator escala:", fatorEscala)
 
-    // scaled (positivamente) by IGDCC factor
     return (distancia / deltaEsforco) * (fatorEscala > 1 ? fatorEscala : 1);
 }
 
@@ -1487,4 +1494,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
+// Adicionar listener para o select de intervalo
+document.getElementById('intervalado')?.addEventListener('change', function() {
+    const scoreBig = document.getElementById('scoreBig');
+    const obsDiv = document.getElementById('obsIntervalado');
+    
+    // if (scoreBig) {
+    //     scoreBig.style.display = this.value === 'sim' ? 'none' : 'block';
+    // }
+    
+    if (obsDiv) {
+        obsDiv.style.display = this.value === 'sim' ? 'block' : 'none';
+    }
+
+});
+
+// Modificar o event listener do formulário para incluir a verificação de intervalo
+const originalSubmitHandler = document.getElementById('calcForm')?.onsubmit;
+document.getElementById('calcForm').onsubmit = function(e) {
+    // Verificar se é intervalo e esconder o scoreBig se necessário
+    const isIntervalado = document.getElementById('intervalado')?.value === 'sim';
+    const scoreBig = document.getElementById('scoreBig');
+    if (scoreBig && isIntervalado) {
+        scoreBig.style.display = 'none';
+    }
+    else scoreBig.style.display = 'block';
+    
+    // Chamar o handler original se existir
+    if (originalSubmitHandler) {
+        return originalSubmitHandler.call(this, e);
+    }
+};
 
