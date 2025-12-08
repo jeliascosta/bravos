@@ -52,13 +52,26 @@
             <input type="number" id="idade" value="35" required>
 
             <label for="sexo">👩 Sexo:</label>
-            <select id="sexo" required>
+            <select id="sexo" required style="width: 100%;">
                 <option value="M">Masculino</option>
                 <option value="F" selected>Feminino</option>
             </select>
 
-            <label for="distancia">🛣️ Distância (km):</label>
-            <input type="number" id="distancia" step="0.01" value="5" required>
+            <div style="display: flex; gap: 8px; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label for="distancia" style="margin-bottom: 4px; display: block;">🛣️ Distância (km):</label>
+                    <input type="number" id="distancia" step="0.01" value="5" required style="width: 92%">
+                </div>
+                <div style="width: 100px;">
+                    <label for="intervalado" style="font-size: 0.8em; margin-bottom: 4px; display: block;text-align: center;">⏸️ Intervalada?</label>
+                    <select id="intervalado" style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
+                        <option value="nao">Não</option>
+                        <option value="sim">Sim</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="obsIntervalado" style="display:none; margin: 0px 0px 15px 0px;text-align: justify;font-size: 0.8rem;">OBS: O IGDCC (ainda) não possui um critério técnico para atribuir nota a treinos intervalados. Caso possua uma sugestão de como ajustar a equivalência, entre em contato com o desenvolvedor!</div>
 
             <button type="submit">🧮 Calcular Nota</button>
         </form>
@@ -91,14 +104,28 @@
                             <div style="font-size:.75rem;font-weight:700;opacity:.9">🏃🏻‍♂️‍➡️ Pace</div>
                             <div style="font-size:.95rem;font-weight:800" id="cardPace"></div>
                         </div>
+                        <div class="meta-item" style="text-align:center">
+                            <div style="font-size:.75rem;font-weight:700;opacity:.9;">💪 Hustle</div>
+                            <div style="font-size:.95rem;font-weight:800" id="cardHustle" class="hustle-points">-</div>
+                        </div>
                     </div>
                     <div class="card-corner card-corner-left"></div>
                     <div class="card-corner card-corner-right"></div>
                     <div class="zone-phrase" id="zonePhrase"></div>
                 </div>
             </div>
-            <div style="text-align:center; margin-top:10px;">
-                <button type="button" id="copyCardBtn" style="display:none;">📋 Compartilhar Card</button>
+            <div id="opcoesCard" class="hustle-toggle-container"
+                style="display: none; justify-content: center; align-items: center; margin: 10px 0;">
+                <span style="margin-right: 10px; font-weight: bold;">Mostrar Pontos Hustle:</span>
+                <label class="switch" title="Mostrar/ocultar pontos">
+                    <input type="checkbox" id="toggleHustle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div id="cardActions" style="display:none;gap:8px; width:100%; align-items:stretch;">
+                <button class="compose-export" type="button" id="copyHustlePointsBtn" style="flex:1 1 0;">📑 Copiar Pontos Hustle</button>
+                <button class="compose-export" type="button" id="copyCardBtn"  style="flex:1 1 0;">📋 Compartilhar Card</button>
             </div>
 
         </div>
@@ -257,7 +284,7 @@
     <!-- Biblioteca para capturar o div como imagem -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-    
+
 
     <script src="js/app.js"></script>
 </body>

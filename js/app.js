@@ -1,5 +1,40 @@
 // app.js
 
+
+/**
+ * Calcula os pontos Hustle com base na distância percorrida e nota IGDCC
+ * @param {number} distancia - Distância em quilômetros
+ * @param {number} notaIGDCC - Nota no IGDCC (0-100)
+ * @returns {number} - Pontos Hustle escalonados pela nota
+ */
+function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
+    if (!distancia || isNaN(distancia) || !notaIGDCC || isNaN(notaIGDCC)) return 0;
+
+    const deltaCorrida = 0.6755; //km
+    const deltaCaminhada = 0.9655; //km
+    let deltaEsforco = deltaCorrida;
+
+    // Verificar se é treino intervalado
+    const isIntervalado = document.getElementById('intervalado')?.value === 'sim';
+    
+    // Se for intervalado, retornar apenas a distância / deltaEsforco (fatorEscala = 1)
+    if (isIntervalado) {
+        return (distancia / deltaEsforco);
+    }
+
+    // Cálculo normal para treinos contínuos
+    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual);
+    let notaBase = notaBaseF;
+
+    // if (notaIGDCC < notaBase)
+    //     deltaEsforco = deltaCaminhada;
+
+    const fatorEscala = notaIGDCC / notaBase;
+    console.log("Nota base para pts hustle:", notaBase, "fator escala:", fatorEscala)
+
+    return (distancia / deltaEsforco) * (fatorEscala > 1 ? fatorEscala : 1);
+}
+
 const tituloGraficos = document.getElementById('titulo-graficos');
 const inputIdade = document.getElementById('idade');
 
@@ -10,7 +45,7 @@ function atualizarEmojisPorSexo(sexo) {
     if (labelSexo) {
         labelSexo.innerHTML = sexo === 'M' ? '👨 Sexo:' : '👩 Sexo:';
     }
-    
+
     // Atualiza emoji no título IGDCC
     const tituloIGDCC = document.querySelector('h1');
     if (tituloIGDCC) {
@@ -201,8 +236,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 const pace = document.getElementById('pace').value;
                 nota = calcularNotaPorPace(pace, idade, sexo, distancia);
             }
+
             // Renderiza a "share card" estilo app de corrida
-            const inteiro = Math.max(0, Math.min(100, Math.floor(Number(nota) || 0)));
+            const notaInteiro = Math.max(0, Math.min(100, Math.floor(Number(nota) || 0)));
+
+            // Calcula os pontos Hustle
+            const pontosHustle = calcularPontosHustle(distancia, notaInteiro, idade, distancia);
+
+            // Atualiza a exibição dos pontos Hustle no card
+            const cardHustle = document.getElementById('cardHustle');
+            if (cardHustle) {
+                const pontosFormatados = pontosHustle.toFixed(2).replace('.', ',');
+                cardHustle.textContent = `${pontosFormatados} pts`;
+            }
 
             // zona de exemplo: décadas, 90+ é "90-100"
             function rotuloZona(n) {
@@ -277,32 +323,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             let bgStart, bgEnd;
-            if (inteiro === 100) {
+            if (notaInteiro === 100) {
                 bgStart = gold;
                 bgEnd = gold;
             }
-            else if (inteiro < 90) {
+            else if (notaInteiro < 90) {
                 // Ajuste: o visual da nota 83 passa a ocorrer em 80, mantendo a variação final de 89
-                if (inteiro < 80) {
+                if (notaInteiro < 80) {
                     // 40–79: pale -> strong (commit mapeado), t = (n-40)/40
-                    const t = Math.max(0, Math.min(1, (inteiro - 40) / 40)); // 0..1 (40->80)
+                    const t = Math.max(0, Math.min(1, (notaInteiro - 40) / 40)); // 0..1 (40->80)
                     bgStart = interpolarRgb(pale, strong, t);
                     bgEnd = interpolarRgb(pale, strong, Math.max(0, t * 0.2));
                 } else {
                     // 80–89: deslocar a cor de 85 para ocorrer em 80 e manter 89 igual
                     // t2(80) = (85-80)/9 = 5/9, t2(89) = 1  => t2 = 5/9 + (n-80)*(4/81)
-                    const t2 = Math.max(0, Math.min(1, (5 / 9) + (inteiro - 80) * (4 / 81)));
+                    const t2 = Math.max(0, Math.min(1, (5 / 9) + (notaInteiro - 80) * (4 / 81)));
                     bgStart = interpolarRgb(sexo === 'F' ? strong : strongM80, sexo === 'F' ? gold : goldM80, Math.min(1, t2 * 0.2));
                     bgEnd = interpolarRgb(sexo === 'F' ? strong : strongM80, sexo === 'F' ? gold : goldM80, t2);
                 }
             }
             else {
                 // >= 90: manter lógica atual de pretos e ouro
-                if (inteiro < 95) {
-                    const t = (inteiro - 90) / 5; // 0..1 (90->95)
+                if (notaInteiro < 95) {
+                    const t = (notaInteiro - 90) / 5; // 0..1 (90->95)
                     bgStart = interpolarRgb(black90Start, black, t);
                     bgEnd = interpolarRgb(black90End, black, t);
-                } else if (inteiro < 100) {
+                } else if (notaInteiro < 100) {
                     bgStart = black;
                     bgEnd = black;
                 }
@@ -310,18 +356,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // cor do texto — fixa por sexo para < 90 (sem variação por luminância)
             let textColor;
-            if (inteiro === 100) {
+            if (notaInteiro === 100) {
                 textColor = sexo === 'F' ? '#2c0045ff' : '#002157ff';
             }
-            else if (inteiro < 90) {
+            else if (notaInteiro < 90) {
                 textColor = sexo === 'F' ? 'rgb(54, 0, 96)' : 'rgb(0, 37, 96)';
             } else {
                 // 90–99: manter cores claras atuais por sexo
                 textColor = sexo === 'F' ? 'rgb(230, 180, 204)' : 'rgb(156, 202, 221)';
             }
 
-            const zone = rotuloZona(inteiro);
-            const phrase = frases[zone] || (inteiro >= 90 ? frases['90-100'] : '💪 BORA VIBRAR! 💪');
+            const zone = rotuloZona(notaInteiro);
+            const phrase = frases[zone] || (notaInteiro >= 90 ? frases['90-100'] : '💪 BORA VIBRAR! 💪');
             const printPhrase = (frasesPrint && frasesPrint[zone]) ? frasesPrint[zone] : phrase;
 
             // calcular tempo / pace para exibir no card
@@ -341,11 +387,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } catch (e) { /* segura se inputs faltarem */ }
 
-
             const distLabel = Number.isFinite(distancia)
                 ? (parseFloat(distancia.toFixed(1)) % 1 === 0 ? `${distancia.toFixed(0)} k` : `${distancia.toFixed(1)} k`)
                 : '-- k';
-
 
             const hoje = (() => {
                 const d = new Date();
@@ -368,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             document.getElementById('cardDate').textContent = hoje;
-            document.getElementById('scoreBig').textContent = inteiro;
+            document.getElementById('scoreBig').textContent = notaInteiro;
             document.getElementById('scoreDistancia').textContent = distLabel;
             document.getElementById('zoneSmall').textContent = zone;
             document.getElementById('cardTempo').textContent = displayTempo;
@@ -377,18 +421,20 @@ document.addEventListener('DOMContentLoaded', function () {
             zonePhraseEl.textContent = phrase;
 
             // Aplicar cor rgb(254, 240, 165) quando a nota estiver entre 90 e 99
-            if (inteiro >= 90 && inteiro < 100) {
+            if (notaInteiro >= 90 && notaInteiro < 100) {
                 zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
             } else {
                 zonePhraseEl.style.color = ''; // resetar para cor padrão
             }
-            // Exibe o botão copiar se o card existir
-            const copyBtn = document.getElementById('copyCardBtn');
-            const shareCard = document.getElementById('shareCard');
-            if (shareCard && shareCard.style.display !== 'none') {
-                copyBtn.style.display = 'inline-block';
+            // Exibe o botão copiar e opções se o card existir
+            const acoesCard = document.getElementById('cardActions');
+            const opcoesCard = document.getElementById('opcoesCard');
+            if (shareCardEl && shareCardEl.style.display !== 'none') {
+                acoesCard.style.display = 'flex';
+                opcoesCard.style.display = 'flex';
             } else {
-                copyBtn.style.display = 'none';
+                acoesCard.style.display = 'none';
+                opcoesCard.style.display = 'none';
             }
             // Exibe a seção do compositor apenas após calcular a nota
             const compositor = document.getElementById('compositor');
@@ -397,9 +443,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof atualizarCardOverlayDoShareCard === 'function') atualizarCardOverlayDoShareCard();
             if (typeof recalibrarLarguraOverlayDaOrigem === 'function') recalibrarLarguraOverlayDaOrigem();
         } catch (error) {
-            const shareCard = document.getElementById('shareCard');
-            if (shareCard) {
-                shareCard.style.display = 'none';
+            const shareCardEl = document.getElementById('shareCard');
+            if (shareCardEl) {
+                shareCardEl.style.display = 'none';
             }
             document.getElementById('nota').innerHTML = `<div style="color: red;">Erro: ${error.message}</div>`;
         }
@@ -661,6 +707,87 @@ function atualizarTituloReferencia() {
 document.getElementById('idade').addEventListener('change', onFormInputsChange);
 document.getElementById('sexo').addEventListener('change', onFormInputsChange);
 document.getElementById('distancia').addEventListener('change', onFormInputsChange);
+
+// Função para atualizar o botão de copiar pontos Hustle
+function atualizarBotaoCopiarHustle() {
+    const button = document.getElementById('copyHustlePointsBtn');
+    const cardHustle = document.getElementById('cardHustle');
+    const showHustlePoints = localStorage.getItem('showHustlePoints') !== 'false';
+
+    if (button && cardHustle) {
+        // Mostrar o botão apenas se os pontos Hustle estiverem ativos e houver pontos para copiar
+        const shouldShow = showHustlePoints && cardHustle.textContent && cardHustle.textContent.trim() !== '-';
+        button.style.display = shouldShow ? 'unset' : 'none';
+
+        // Adicionar o event listener apenas uma vez
+        if (!button.hasAttribute('data-listener-added')) {
+            button.addEventListener('click', async () => {
+                try {
+                    const hustlePoints = cardHustle.textContent.trim().replace(/[^\d,]/g, '');
+                    await navigator.clipboard.writeText(hustlePoints);
+                    alert('✅ Agora é só colar os pontos ('+hustlePoints+') no outro app!');
+                } catch (err) {
+                    console.error('Erro ao copiar para a área de transferência:', err);
+                    alert('Falha ao copiar os pontos hustle. Tente novamente.');
+                }
+            });
+            button.setAttribute('data-listener-added', 'true');
+        }
+    }
+}
+
+
+// Atualizar o botão quando o formulário for enviado
+document.getElementById('calcForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    // Código existente de cálculo...
+    setTimeout(atualizarBotaoCopiarHustle, 0); // Garante que o botão seja atualizado após o cálculo
+});
+
+// Adicionar listener para o toggle de mostrar/ocultar pontos Hustle
+document.getElementById('toggleHustle').addEventListener('change', function () {
+    const hustleContainers = document.querySelectorAll('.meta-item:has(.hustle-points)');
+    const isChecked = this.checked;
+
+    // Atualizar o botão de copiar pontos Hustle
+    atualizarBotaoCopiarHustle();
+
+    // Salvar preferência no localStorage
+    localStorage.setItem('showHustlePoints', isChecked);
+
+    // Mostrar ou ocultar todo o container de Hustle
+    hustleContainers.forEach(container => {
+        container.style.display = isChecked ? 'unset' : 'none';
+    });
+
+    // Atualizar o card de compartilhamento se estiver visível
+    const shareCard = document.getElementById('shareCard');
+    if (shareCard && shareCard.style.display !== 'none') {
+        atualizarCardOverlayDoShareCard();
+    }
+
+    // Atualizar o botão de copiar pontos Hustle
+    atualizarBotaoCopiarHustle();
+});
+
+// Verificar preferência salva ao carregar a página
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleHustle = document.getElementById('toggleHustle');
+    const hustleContainers = document.querySelectorAll('.meta-item:has(.hustle-points)');
+    const savedPreference = localStorage.getItem('showHustlePoints');
+
+    // Se não houver preferência salva, mostrar por padrão
+    const showHustlePoints = savedPreference === null ? true : savedPreference === 'true';
+
+    // Aplicar preferência
+    toggleHustle.checked = showHustlePoints;
+    hustleContainers.forEach(container => {
+        container.style.display = showHustlePoints ? 'unset' : 'none';
+    });
+
+    // Atualizar o botão de copiar pontos Hustle
+    atualizarBotaoCopiarHustle();
+});
 
 // Inicializar o título
 document.addEventListener('DOMContentLoaded', onFormInputsChange);
@@ -1032,27 +1159,26 @@ function garantirCardOverlay() {
     }
 }
 
-function clonarCardCompartilhar(srcCard) {
-    const clone = srcCard.cloneNode(true);
-    // remove id do próprio nó e de todos os descendentes para evitar duplicatas no DOM
-    const stripIds = (el) => {
+function prepararCardClonado(srcCard, clone) {
+    // strip IDs do clone inteiro
+    (function stripIds(el) {
         if (el.nodeType !== 1) return;
         if (el.id) el.removeAttribute('id');
         const children = el.children || [];
         for (let i = 0; i < children.length; i++) stripIds(children[i]);
-    };
-    stripIds(clone);
+    })(clone);
+
     // remove a seção de meta do card no clone (print não deve exibir)
     try {
         const metas = clone.querySelectorAll('.card-meta');
         metas.forEach(n => n.remove());
     } catch (_) { }
+
+    // Configurações de estilo comuns
     clone.style.display = 'block';
-    clone.style.position = 'absolute';
-    clone.style.pointerEvents = 'none'; // evita capturar cliques internos, drag é pelo overlay
-    // garantir mesmas cores inline aplicadas no original
     clone.style.background = srcCard.style.background;
     clone.style.color = srcCard.style.color;
+
     // Copiar propriedades tipográficas para evitar variações por contexto
     try {
         const cs = window.getComputedStyle(srcCard);
@@ -1062,6 +1188,46 @@ function clonarCardCompartilhar(srcCard) {
         ];
         for (const p of props) clone.style[p] = cs[p];
     } catch (_) { }
+
+    // Adicionar pontos Hustle acima da zone-phrase
+    try {
+        // Verificar se os pontos Hustle devem ser exibidos
+        const showHustlePoints = localStorage.getItem('showHustlePoints') !== 'false'; // true por padrão
+        const srcHustlePoints = srcCard.querySelector('#cardHustle');
+        const zp = clone.querySelector('.zone-phrase');
+        if (showHustlePoints && srcHustlePoints && srcHustlePoints.textContent &&
+            srcHustlePoints.textContent.trim() !== '-' && zp) {
+            const hustlePoints = srcHustlePoints.textContent.trim();
+
+            // Criar container para os pontos Hustle
+            const hustleDiv = document.createElement('div');
+            hustleDiv.className = 'hustle-points-display';
+            hustleDiv.style.textAlign = 'center';
+            hustleDiv.style.margin = '10px 0 5px 0';
+            hustleDiv.style.fontSize = '1rem';
+            hustleDiv.style.fontWeight = '800';
+            hustleDiv.style.color = srcHustlePoints.style.color || '';
+
+            // Criar ícone de fogo
+            const hustleIcon = document.createElement('span');
+            hustleIcon.textContent = '💪 ';
+            hustleIcon.style.display = 'inline-block';
+
+            // Criar texto com os pontos Hustle
+            const hustleText = document.createElement('span');
+            hustleText.textContent = hustlePoints.endsWith('pts') ? hustlePoints : `${hustlePoints} pts`;
+
+            // Montar o elemento
+            hustleDiv.appendChild(hustleIcon);
+            hustleDiv.appendChild(hustleText);
+
+            // Inserir antes da zone-phrase
+            zp.parentNode.insertBefore(hustleDiv, zp);
+        }
+    } catch (e) {
+        console.error('Erro ao adicionar pontos Hustle ao card:', e);
+    }
+
     // Ajuste específico do clone: aplicar frasesPrint e espaçamento/estilos da zone-phrase para print/export
     try {
         const zp = clone.querySelector('.zone-phrase');
@@ -1071,14 +1237,24 @@ function clonarCardCompartilhar(srcCard) {
                 const pf = (srcCard && srcCard.dataset && srcCard.dataset.phrasePrint) || '';
                 if (pf) zp.textContent = pf;
             } catch (_) { }
-            zp.style.marginTop = '12px';
+            zp.style.marginTop = '5px'; // Reduzido para acomodar os pontos Hustle
             // remover blur no clone (print/export)
             zp.style.backdropFilter = 'none';
             zp.style.webkitBackdropFilter = 'none';
         }
     } catch (_) { }
+
     // Distribui emojis somente no clone e não para nota 100
     try { distribuirEmojisDaZonaNoCard(clone); } catch (_) { }
+
+    return clone;
+}
+
+function clonarCardCompartilhar(srcCard) {
+    const clone = srcCard.cloneNode(true);
+    prepararCardClonado(srcCard, clone);
+    clone.style.position = 'absolute';
+    clone.style.pointerEvents = 'none'; // evita capturar cliques internos, drag é pelo overlay
     return clone;
 }
 
@@ -1176,29 +1352,14 @@ function atualizarCardOverlayDoShareCard() {
     if (_compose.cardEl) {
         // Atualiza conteúdo textual do clone para refletir mudanças
         const fresh = srcCard.cloneNode(true);
-        // strip IDs do clone inteiro
-        (function stripIds(el) { if (el.nodeType !== 1) return; if (el.id) el.removeAttribute('id'); const kids = el.children || []; for (let i = 0; i < kids.length; i++) stripIds(kids[i]); })(fresh);
-        // remove a seção de meta do card no clone (print não deve exibir)
-        try {
-            const metas2 = fresh.querySelectorAll('.card-meta');
-            metas2.forEach(n => n.remove());
-        } catch (_) { }
-        fresh.style.display = 'block';
+        prepararCardClonado(srcCard, fresh);
+
+        // Configurações específicas do overlay
         fresh.style.position = 'absolute';
         fresh.style.left = _compose.cardEl.style.left || '16px';
         fresh.style.top = _compose.cardEl.style.top || '16px';
-        fresh.style.background = srcCard.style.background;
-        fresh.style.color = srcCard.style.color;
         fresh.style.pointerEvents = 'none';
-        // Copiar propriedades tipográficas para evitar variações por contexto
-        try {
-            const cs2 = window.getComputedStyle(srcCard);
-            const props2 = [
-                'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'wordSpacing',
-                'fontStretch', 'fontVariant', 'fontKerning', 'textTransform', 'textRendering'
-            ];
-            for (const p of props2) fresh.style[p] = cs2[p];
-        } catch (_) { }
+
         // Atualiza apenas metrics; mantém baseWidth congelada
         const cs = window.getComputedStyle(srcCard);
         _compose.baseWidth = (_compose.frozenBaseWidth != null) ? _compose.frozenBaseWidth : _compose.baseWidth;
@@ -1208,32 +1369,19 @@ function atualizarCardOverlayDoShareCard() {
             hPadding: num(cs.paddingLeft) + num(cs.paddingRight),
             hBorder: num(cs.borderLeftWidth) + num(cs.borderRightWidth)
         };
+
         // manter largura base e aplicar escala via transform
         fresh.style.boxSizing = cs.boxSizing;
         const hPadding = num(cs.paddingLeft) + num(cs.paddingRight);
         const hBorder = num(cs.borderLeftWidth) + num(cs.borderRightWidth);
         let baseContent = _compose.baseWidth || fresh.getBoundingClientRect().width;
         if (cs.boxSizing === 'content-box') baseContent = Math.max(0, (_compose.baseWidth || 0) - hPadding - hBorder);
+
         // aplica escala atual
         const s2 = (_compose.scale / 100);
         fresh.style.transformOrigin = 'top left';
         fresh.style.transform = `scale(${s2})`;
-        // Ajuste específico do clone atualizado: aplicar frasesPrint e garantir margin-top da zone-phrase em 12px e sem blur
-        try {
-            const zp2 = fresh.querySelector('.zone-phrase');
-            if (zp2) {
-                // usar a frase de print já persistida no card original
-                try {
-                    const pf2 = (srcCard && srcCard.dataset && srcCard.dataset.phrasePrint) || '';
-                    if (pf2) zp2.textContent = pf2;
-                } catch (_) { }
-                zp2.style.marginTop = '12px';
-                zp2.style.backdropFilter = 'none';
-                zp2.style.webkitBackdropFilter = 'none';
-            }
-        } catch (_) { }
-        // Distribui emojis somente no clone e não para nota 100
-        try { distribuirEmojisDaZonaNoCard(fresh); } catch (_) { }
+
         _compose.cardEl.replaceWith(fresh);
         _compose.cardEl = fresh;
     }
@@ -1346,4 +1494,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
+// Adicionar listener para o select de intervalo
+document.getElementById('intervalado')?.addEventListener('change', function() {
+    const scoreBig = document.getElementById('scoreBig');
+    const obsDiv = document.getElementById('obsIntervalado');
+    
+    // if (scoreBig) {
+    //     scoreBig.style.display = this.value === 'sim' ? 'none' : 'block';
+    // }
+    
+    if (obsDiv) {
+        obsDiv.style.display = this.value === 'sim' ? 'block' : 'none';
+    }
+
+});
+
+// Modificar o event listener do formulário para incluir a verificação de intervalo
+const originalSubmitHandler = document.getElementById('calcForm')?.onsubmit;
+document.getElementById('calcForm').onsubmit = function(e) {
+    // Verificar se é intervalo e esconder o scoreBig se necessário
+    const isIntervalado = document.getElementById('intervalado')?.value === 'sim';
+    const scoreBig = document.getElementById('scoreBig');
+    if (scoreBig && isIntervalado) {
+        scoreBig.style.display = 'none';
+    }
+    else scoreBig.style.display = 'block';
+    
+    // Chamar o handler original se existir
+    if (originalSubmitHandler) {
+        return originalSubmitHandler.call(this, e);
+    }
+};
 
