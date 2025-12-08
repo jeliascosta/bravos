@@ -446,11 +446,11 @@ function tempoRefPorDistanciaExp(distanciaKm, idade, sexo) {
 
 // -------------------CÁLCULO DE NOTAS----------------------------
 
-function calcularNotaPorPace(pace, idade, sexo, distancia) {
+function calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf = 'A1') {
     const pacePartes = pace.split(":").map(Number);
     const paceSegundos = pacePartes[0] * 60 + pacePartes[1];
     const tempo = segundosParaTempo(paceSegundos * distancia);
-    return calcularNota(tempo, idade, sexo, distancia);
+    return calcularNota(tempo, idade, sexo, distancia, ultimoTaf);
 }
 
 // --- Pontos configuráveis da curva de nota ---
@@ -573,7 +573,7 @@ function proporcaoPorNota(nota) {
 // }
 
 
-function calcularNota(tempo, idade, sexo, distanciaKm) {
+function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
     const tempoSeg = tempoParaSegundos(tempo);
 
     let notaMin = 0;
@@ -587,7 +587,7 @@ function calcularNota(tempo, idade, sexo, distanciaKm) {
         nota = (notaMin + notaMax) / 2;
 
         // Gera tempo pela função direta
-        const { segundos: tempoCurvaSeg } = tempoEPaceParaNota(nota, idade, sexo, distanciaKm);
+        const { segundos: tempoCurvaSeg } = tempoEPaceParaNota(nota, idade, sexo, distanciaKm, ultimoTaf);
 
         const diff = tempoCurvaSeg - tempoSeg;
 
@@ -604,13 +604,13 @@ function calcularNota(tempo, idade, sexo, distanciaKm) {
     }
 
     // se o tempo for melhor que o tempoRef, retorna 100 (não extrapolar acima de 100)
-    const tempoRefSeg = tempoParaSegundos(tempoEPaceParaNota(100, idade, sexo, distanciaKm).tempo);
+    const tempoRefSeg = tempoParaSegundos(tempoEPaceParaNota(100, idade, sexo, distanciaKm, ultimoTaf).tempo);
     if (tempoSeg <= tempoRefSeg) {
         return 100;
     }
 
     // idem para o limite inferior
-    const tempoZero = tempoEPaceParaNota(0, idade, sexo, distanciaKm).tempo;
+    const tempoZero = tempoEPaceParaNota(0, idade, sexo, distanciaKm, ultimoTaf).tempo;
     if (tempoParaSegundos(tempo) >= tempoParaSegundos(tempoZero)) return 0;
 
     // retorna nota final limitada entre 0 e 100 (inteiro)
@@ -618,8 +618,14 @@ function calcularNota(tempo, idade, sexo, distanciaKm) {
 }
 
 // --- Função inversa: dado nota → tempo e pace ---
-function tempoEPaceParaNota(nota, idade, sexo, distanciaKm) {
-    const tempoRefSeg = tempoRefPorDistanciaExp(distanciaKm, idade, sexo);
+function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
+    console.log("ÚLTIMO TAF:", ultimoTaf)
+    // Aplicar multiplicador com base no último TAF
+    let tempoRefSeg = tempoRefPorDistanciaExp(distanciaKm, idade, sexo);
+    if (ultimoTaf === 'A2')
+        tempoRefSeg =  tempoRefSeg * 1.2;
+    else if (ultimoTaf === 'A3')
+        tempoRefSeg = tempoRefSeg * 1.3;
     const proporcao = proporcaoPorNota(nota);
     const tempoSeg = tempoRefSeg * proporcao;
 

@@ -16,14 +16,14 @@ function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
 
     // Verificar se é treino intervalado
     const isIntervalado = document.getElementById('intervalado')?.value === 'sim';
-    
+
     // Se for intervalado, retornar apenas a distância / deltaEsforco (fatorEscala = 1)
     if (isIntervalado) {
         return (distancia / deltaEsforco);
     }
 
     // Cálculo normal para treinos contínuos
-    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual);
+    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual, "A1");
     let notaBase = notaBaseF;
 
     // if (notaIGDCC < notaBase)
@@ -79,7 +79,8 @@ function preencherTabelaParaSexo(tbodyId, sexoReferencia) {
 
         for (const d of distancias) {
             try {
-                const { tempo, pace } = tempoEPaceParaNota(100, idade, sexoReferencia, d.km);
+                const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'A1';
+                const { tempo, pace } = tempoEPaceParaNota(100, idade, sexoReferencia, d.km, ultimoTaf);
                 rowHtml += `<td class="ref-cell"><div class="ref-tempo">${tempo}</div><div class="ref-pace">${pace}</div></td>`;
             } catch (err) {
                 rowHtml += `<td class="ref-cell"><div class="ref-tempo">--</div><div class="ref-pace">--</div></td>`;
@@ -123,11 +124,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const vI = localStorage.getItem('igdcc_idade');
     const vD = localStorage.getItem('igdcc_distancia');
     const vS = localStorage.getItem('igdcc_sexo');
+    const vUltimoTaf = localStorage.getItem('igdcc_ultimoTaf');
     if (tEl && vT != null) tEl.value = vT;
     if (pEl && vP != null) pEl.value = vP;
     if (iEl && vI != null) iEl.value = vI;
     if (dEl && vD != null) dEl.value = vD;
     if (sEl && vS != null) sEl.value = vS;
+    if (document.getElementById('ultimoTaf') && vUltimoTaf != null) document.getElementById('ultimoTaf').value = vUltimoTaf;
     if (tEl) tEl.addEventListener('input', () => localStorage.setItem('igdcc_tempo', tEl.value || ''));
     if (pEl) pEl.addEventListener('input', () => localStorage.setItem('igdcc_pace', pEl.value || ''));
     if (iEl) iEl.addEventListener('change', () => localStorage.setItem('igdcc_idade', iEl.value || ''));
@@ -139,6 +142,38 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         // Atualizar emojis na inicialização também
         atualizarEmojisPorSexo(sEl.value);
+    }
+
+    // Adicionar listener para salvar a seleção do Último TAF e atualizar o card, tabelas e gráficos
+    const ultimoTafEl = document.getElementById('ultimoTaf');
+    if (ultimoTafEl) {
+        ultimoTafEl.addEventListener('change', () => {
+            const valorTaf = ultimoTafEl.value || '';
+            localStorage.setItem('igdcc_ultimoTaf', valorTaf);
+            
+            // Atualiza o card
+            if (typeof atualizarCardOverlayDoShareCard === 'function') {
+                atualizarCardOverlayDoShareCard();
+            }
+            
+            // Atualiza as tabelas de referência
+            preencherTabelaReferencia();
+            
+            // Atualiza a tabela de notas
+            if (typeof atualizarTabelaNotas === 'function') {
+                atualizarTabelaNotas();
+            }
+            
+            // Atualiza os gráficos
+            if (typeof gerarGraficos === 'function') {
+                gerarGraficos();
+            }
+            
+            // Atualiza o título dos gráficos
+            if (typeof atualizarTituloGraficos === 'function') {
+                atualizarTituloGraficos();
+            }
+        });
     }
 
     // restaurar tipoEntrada salvo
@@ -229,19 +264,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             let nota;
+            let notaA1;
+            const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'A1';
             if (tipoEntrada === 'tempo') {
                 const tempo = document.getElementById('tempo').value;
-                nota = calcularNota(tempo, idade, sexo, distancia);
+                nota = calcularNota(tempo, idade, sexo, distancia, ultimoTaf);
+                notaA1 = calcularNota(tempo, idade, sexo, distancia, "A1");
             } else {
                 const pace = document.getElementById('pace').value;
-                nota = calcularNotaPorPace(pace, idade, sexo, distancia);
+                nota = calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf);
+                notaA1 = calcularNotaPorPace(pace, idade, sexo, distancia, "A1");
             }
 
             // Renderiza a "share card" estilo app de corrida
             const notaInteiro = Math.max(0, Math.min(100, Math.floor(Number(nota) || 0)));
+            const notaA1Inteiro = Math.max(0, Math.min(100, Math.floor(Number(notaA1) || 0)));
 
             // Calcula os pontos Hustle
-            const pontosHustle = calcularPontosHustle(distancia, notaInteiro, idade, distancia);
+            const pontosHustle = calcularPontosHustle(distancia, notaA1Inteiro, idade, distancia);
 
             // Atualiza a exibição dos pontos Hustle no card
             const cardHustle = document.getElementById('cardHustle');
@@ -321,9 +361,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const gold = 'rgb(255, 209, 102)'; // nota 100
             const goldM80 = 'rgb(255, 194, 51)'; // nota 100
 
+// ultimoTaf is already defined in the parent scope
 
             let bgStart, bgEnd;
-            if (notaInteiro === 100) {
+            if (ultimoTaf !== 'A1') {
+                // Para qualquer nota quando ultimoTaf não for A1, usar o esquema 40-79
+                const t = Math.max(0, Math.min(1, (notaInteiro - 40) / 60)); // 0..1 (40->100)
+                bgStart = interpolarRgb(pale, strong, t);
+                bgEnd = interpolarRgb(pale, strong, Math.max(0, t * 0.2));
+            }
+            else if (notaInteiro === 100) {
                 bgStart = gold;
                 bgEnd = gold;
             }
@@ -356,7 +403,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // cor do texto — fixa por sexo para < 90 (sem variação por luminância)
             let textColor;
-            if (notaInteiro === 100) {
+            if (ultimoTaf !== 'A1') {
+                textColor = sexo === 'F' ? 'rgb(54, 0, 96)' : 'rgb(0, 37, 96)';
+            }
+            else if (notaInteiro === 100) {
                 textColor = sexo === 'F' ? '#2c0045ff' : '#002157ff';
             }
             else if (notaInteiro < 90) {
@@ -388,8 +438,10 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (e) { /* segura se inputs faltarem */ }
 
             const distLabel = Number.isFinite(distancia)
-                ? (parseFloat(distancia.toFixed(1)) % 1 === 0 ? `${distancia.toFixed(0)} k` : `${distancia.toFixed(1)} k`)
-                : '-- k';
+                ? (parseFloat(distancia.toFixed(1)) % 1 === 0
+                    ? `${distancia.toFixed(0)} k <span class="taf-separator">|</span> <span class="taf-value">${ultimoTaf}</span>`
+                    : `${distancia.toFixed(1)} k <span class="taf-separator">|</span> <span class="taf-value">${ultimoTaf}</span>`)
+                : `-- k <span class="taf-separator">|</span> <span class="taf-value">${ultimoTaf}</span>`;
 
             const hoje = (() => {
                 const d = new Date();
@@ -413,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.getElementById('cardDate').textContent = hoje;
             document.getElementById('scoreBig').textContent = notaInteiro;
-            document.getElementById('scoreDistancia').textContent = distLabel;
+            document.getElementById('scoreDistancia').innerHTML = distLabel;
             document.getElementById('zoneSmall').textContent = zone;
             document.getElementById('cardTempo').textContent = displayTempo;
             document.getElementById('cardPace').textContent = `${displayPace} /km`;
@@ -497,9 +549,10 @@ function montarNomeArquivo() {
 // Gera dados (array de {x: tempoSegundos, y: nota}) para uma distância e sexo
 function gerarDadosParaDistancia(notas, idade, sexo, km) {
     const dados = [];
+    const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'A1';
     for (const nota of notas) {
         try {
-            const res = tempoEPaceParaNota(nota, idade, sexo, km);
+            const res = tempoEPaceParaNota(nota, idade, sexo, km, ultimoTaf);
             let tempo;
             if (res && typeof res === 'object') tempo = res.tempo || res.time || res.t || res;
             else tempo = res;
@@ -672,8 +725,9 @@ function atualizarTabelaNotas() {
     tabelaNotas.innerHTML = '';
 
     // Gera linhas para notas de 100 a 50
+    const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'A1';
     for (let nota = 50; nota <= 100; nota += 1) {
-        const resultado = tempoEPaceParaNota(nota, idade, sexo, distancia);
+        const resultado = tempoEPaceParaNota(nota, idade, sexo, distancia, ultimoTaf);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -725,7 +779,7 @@ function atualizarBotaoCopiarHustle() {
                 try {
                     const hustlePoints = cardHustle.textContent.trim().replace(/[^\d,]/g, '');
                     await navigator.clipboard.writeText(hustlePoints);
-                    alert('✅ Agora é só colar os pontos ('+hustlePoints+') no outro app!');
+                    alert('✅ Agora é só colar os pontos (' + hustlePoints + ') no outro app!');
                 } catch (err) {
                     console.error('Erro ao copiar para a área de transferência:', err);
                     alert('Falha ao copiar os pontos hustle. Tente novamente.');
@@ -770,19 +824,47 @@ document.getElementById('toggleHustle').addEventListener('change', function () {
     atualizarBotaoCopiarHustle();
 });
 
-// Verificar preferência salva ao carregar a página
+// Adicionar listener para o toggle de mostrar/ocultar Pace
+document.getElementById('togglePace').addEventListener('change', function () {
+    const paceContainers = document.querySelectorAll('.meta-item:has(#cardPace)');
+    const isChecked = this.checked;
+
+    // Salvar preferência no localStorage
+    localStorage.setItem('showPace', isChecked);
+
+    // Mostrar ou ocultar todo o container de Pace
+    paceContainers.forEach(container => {
+        container.style.display = isChecked ? 'unset' : 'none';
+    });
+
+    // Atualizar o card de compartilhamento
+    if (typeof atualizarCardOverlayDoShareCard === 'function') {
+        atualizarCardOverlayDoShareCard();
+    }
+});
+
+// Verificar preferências salvas ao carregar a página
 document.addEventListener('DOMContentLoaded', function () {
     const toggleHustle = document.getElementById('toggleHustle');
     const hustleContainers = document.querySelectorAll('.meta-item:has(.hustle-points)');
-    const savedPreference = localStorage.getItem('showHustlePoints');
+    const savedHustlePreference = localStorage.getItem('showHustlePoints');
+    const showHustlePoints = savedHustlePreference === null ? true : savedHustlePreference === 'true';
 
-    // Se não houver preferência salva, mostrar por padrão
-    const showHustlePoints = savedPreference === null ? true : savedPreference === 'true';
-
-    // Aplicar preferência
+    // Aplicar preferência do Hustle
     toggleHustle.checked = showHustlePoints;
     hustleContainers.forEach(container => {
         container.style.display = showHustlePoints ? 'unset' : 'none';
+    });
+
+    const togglePace = document.getElementById('togglePace');
+    const paceContainers = document.querySelectorAll('.meta-item:has(#cardPace)');
+    const savedPacePreference = localStorage.getItem('showPace');
+    const showPace = savedPacePreference === null ? true : savedPacePreference === 'true';
+
+    // Aplicar preferência do Pace
+    togglePace.checked = showPace;
+    paceContainers.forEach(container => {
+        container.style.display = showPace ? 'unset' : 'none';
     });
 
     // Atualizar o botão de copiar pontos Hustle
@@ -1496,14 +1578,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Adicionar listener para o select de intervalo
-document.getElementById('intervalado')?.addEventListener('change', function() {
+document.getElementById('intervalado')?.addEventListener('change', function () {
     const scoreBig = document.getElementById('scoreBig');
     const obsDiv = document.getElementById('obsIntervalado');
-    
+
     // if (scoreBig) {
     //     scoreBig.style.display = this.value === 'sim' ? 'none' : 'block';
     // }
-    
+
     if (obsDiv) {
         obsDiv.style.display = this.value === 'sim' ? 'block' : 'none';
     }
@@ -1512,7 +1594,7 @@ document.getElementById('intervalado')?.addEventListener('change', function() {
 
 // Modificar o event listener do formulário para incluir a verificação de intervalo
 const originalSubmitHandler = document.getElementById('calcForm')?.onsubmit;
-document.getElementById('calcForm').onsubmit = function(e) {
+document.getElementById('calcForm').onsubmit = function (e) {
     // Verificar se é intervalo e esconder o scoreBig se necessário
     const isIntervalado = document.getElementById('intervalado')?.value === 'sim';
     const scoreBig = document.getElementById('scoreBig');
@@ -1520,7 +1602,7 @@ document.getElementById('calcForm').onsubmit = function(e) {
         scoreBig.style.display = 'none';
     }
     else scoreBig.style.display = 'block';
-    
+
     // Chamar o handler original se existir
     if (originalSubmitHandler) {
         return originalSubmitHandler.call(this, e);
