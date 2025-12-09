@@ -307,18 +307,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
                 '100': '💯🏆😂 DE BIKE, CTZ 😂🏆💯'
             };
-            if (ultimoTaf === "C3") { //🔝
+            if (ultimoTaf === "B2") { //🔝
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🔝 ALÔ C2, CHEGANDO!! 🔝📈',
-                    '100': '💯🅰️2️⃣ C2: À ORDEM! 🅰️2️⃣💯'
+                    '90-99': '📈🔝 OLHA O B1 ALI!! 🔝📈',
+                    '100': '💯😎 B1, TÔ NA ÁREA! 😎💯'
                 }
             }
-            if (ultimoTaf === "C2") { //🔝
+            if (ultimoTaf === "B1") { //🔝
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '😎📈 ALÔ C1, CHEGANDO!! 📈😎',
-                    '100': '💯🅰️1️⃣ C1: PRONTO PARA! 🅰️1️⃣💯'
+                    '90-99': '📈🔝 ALÔ, ALFA?!! 🔝📈',
+                    '100': '💯😎 ALFA, CHEGUEI! 😎💯'
+                }
+            }
+            if (ultimoTaf === "A2") { //🔝
+                frasesHomem = {
+                    ...frasesHomem,
+                    '90-99': '📈🔝 OLHA O A1 ALI!! 🔝📈',
+                    '100': '💯😎 A1, TÔ NA ÁREA! 😎💯'
+                }
+            }
+            if (ultimoTaf === "A1") { //🔝
+                frasesHomem = {
+                    ...frasesHomem,
+                    '90-99': '📈🔝 ALÔ, ZULU?!! 🔝📈',
+                    '100': '💯😎 ZULU, CHEGUEI! 😎💯'
+                }
+            }
+            if (ultimoTaf === "Z2") { //🔝
+                frasesHomem = {
+                    ...frasesHomem,
+                    '90-99': '📈🔝 OLHA O Z1 ALI!! 🔝📈',
+                    '100': '💯😎 Z1, CHEGUEI! 😎💯'
                 }
             }
             let frasesMulher = {
