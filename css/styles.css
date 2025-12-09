@@ -372,11 +372,12 @@ tr:hover {
 /* nota grande — destaque (big number) */
 .share-card .score-big {
     font-family: 'Inter', sans-serif;
-    font-size: 6.0rem;
+    font-size: 6.5rem;
     /* maior que antes */
     font-weight: 900;
     line-height: 1;
     letter-spacing: -0.02em;
+    padding: 0 20px;
 }
 
 .switch {

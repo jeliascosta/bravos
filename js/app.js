@@ -23,7 +23,7 @@ function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
     }
 
     // Cálculo normal para treinos contínuos
-    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual, "C1");
+    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual, "Z1");
     let notaBase = notaBaseF;
 
     // if (notaIGDCC < notaBase)
@@ -79,7 +79,7 @@ function preencherTabelaParaSexo(tbodyId, sexoReferencia) {
 
         for (const d of distancias) {
             try {
-                const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'C1';
+                const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'Z1';
                 const { tempo, pace } = tempoEPaceParaNota(100, idade, sexoReferencia, d.km, ultimoTaf);
                 rowHtml += `<td class="ref-cell"><div class="ref-tempo">${tempo}</div><div class="ref-pace">${pace}</div></td>`;
             } catch (err) {
@@ -264,24 +264,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             let nota;
-            let notaC1;
-            const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'C1';
+            let notaZ1;
+            const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'Z1';
             if (tipoEntrada === 'tempo') {
                 const tempo = document.getElementById('tempo').value;
                 nota = calcularNota(tempo, idade, sexo, distancia, ultimoTaf);
-                notaC1 = calcularNota(tempo, idade, sexo, distancia, "C1");
+                notaZ1 = calcularNota(tempo, idade, sexo, distancia, "Z1");
             } else {
                 const pace = document.getElementById('pace').value;
                 nota = calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf);
-                notaC1 = calcularNotaPorPace(pace, idade, sexo, distancia, "C1");
+                notaZ1 = calcularNotaPorPace(pace, idade, sexo, distancia, "Z1");
             }
 
             // Renderiza a "share card" estilo app de corrida
             const notaInteiro = Math.max(0, Math.min(100, Math.floor(Number(nota) || 0)));
-            const notaC1Inteiro = Math.max(0, Math.min(100, Math.floor(Number(notaC1) || 0)));
+            const notaZ1Inteiro = Math.max(0, Math.min(100, Math.floor(Number(notaZ1) || 0)));
 
             // Calcula os pontos Hustle
-            const pontosHustle = calcularPontosHustle(distancia, notaC1Inteiro, idade, distancia);
+            const pontosHustle = calcularPontosHustle(distancia, notaZ1Inteiro, idade, distancia);
 
             // Atualiza a exibição dos pontos Hustle no card
             const cardHustle = document.getElementById('cardHustle');
@@ -434,13 +434,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // ultimoTaf is already defined in the parent scope
 
             let bgStart, bgEnd;
-            if (ultimoTaf !== 'C1') {
-                // Para qualquer nota quando ultimoTaf não for C1, usar o esquema 40-79
-                const t = Math.max(0, Math.min(1, (notaInteiro - 40) / 60)); // 0..1 (40->100)
-                bgStart = interpolarRgb(pale, strong, t);
-                bgEnd = interpolarRgb(pale, strong, Math.max(0, t * 0.2));
-            }
-            else if (notaInteiro === 100) {
+            if (notaInteiro === 100) {
                 bgStart = gold;
                 bgEnd = gold;
             }
@@ -473,10 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // cor do texto — fixa por sexo para < 90 (sem variação por luminância)
             let textColor;
-            if (ultimoTaf !== 'C1') {
-                textColor = sexo === 'F' ? 'rgb(54, 0, 96)' : 'rgb(0, 37, 96)';
-            }
-            else if (notaInteiro === 100) {
+            if (notaInteiro === 100) {
                 textColor = sexo === 'F' ? '#2c0045ff' : '#002157ff';
             }
             else if (notaInteiro < 90) {
@@ -543,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function () {
             zonePhraseEl.textContent = phrase;
 
             // Aplicar cor rgb(254, 240, 165) quando a nota estiver entre 90 e 99
-            if (ultimoTaf === "C1" && notaInteiro >= 90 && notaInteiro < 100) {
+            if (notaInteiro >= 90 && notaInteiro < 100) {
                 zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
             } else {
                 zonePhraseEl.style.color = ''; // resetar para cor padrão
@@ -619,7 +610,7 @@ function montarNomeArquivo() {
 // Gera dados (array de {x: tempoSegundos, y: nota}) para uma distância e sexo
 function gerarDadosParaDistancia(notas, idade, sexo, km) {
     const dados = [];
-    const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'C1';
+    const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'Z1';
     for (const nota of notas) {
         try {
             const res = tempoEPaceParaNota(nota, idade, sexo, km, ultimoTaf);
@@ -795,7 +786,7 @@ function atualizarTabelaNotas() {
     tabelaNotas.innerHTML = '';
 
     // Gera linhas para notas de 100 a 50
-    const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'C1';
+    const ultimoTaf = document.getElementById('ultimoTaf')?.value || 'Z1';
     for (let nota = 50; nota <= 100; nota += 1) {
         const resultado = tempoEPaceParaNota(nota, idade, sexo, distancia, ultimoTaf);
 

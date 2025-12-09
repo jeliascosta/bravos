@@ -121,6 +121,15 @@ const fatorSexo = [
     { teto: 60, fator: 1.210 }  //Naval
 ];
 
+const fatorNivel = { //Fatores de queda do TAF 2400M masc 34 a 39 anos
+    "Z1": 1,
+    "Z2": 1.0741,
+    "A1": 1.1481,
+    "A2": 1.2407,
+    "B1": 1.3426,
+    "B2": 1.4352,
+}
+
 // -------------------CONVERSÃO DE TEMPOS----------------------------
 
 function tempoParaSegundos(tempo) {
@@ -446,7 +455,7 @@ function tempoRefPorDistanciaExp(distanciaKm, idade, sexo) {
 
 // -------------------CÁLCULO DE NOTAS----------------------------
 
-function calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf = 'A1') {
+function calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf = 'Z1') {
     const pacePartes = pace.split(":").map(Number);
     const paceSegundos = pacePartes[0] * 60 + pacePartes[1];
     const tempo = segundosParaTempo(paceSegundos * distancia);
@@ -573,7 +582,7 @@ function proporcaoPorNota(nota) {
 // }
 
 
-function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
+function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'Z1') {
     const tempoSeg = tempoParaSegundos(tempo);
 
     let notaMin = 0;
@@ -618,14 +627,14 @@ function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
 }
 
 // --- Função inversa: dado nota → tempo e pace ---
-function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
-    console.log("ÚLTIMO TAF:", ultimoTaf)
+function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, nivel = 'Z1') {
+    console.log("NÍVEL:", nivel, fatorNivel[nivel]);
     // Aplicar multiplicador com base no último TAF
     let tempoRefSeg = tempoRefPorDistanciaExp(distanciaKm, idade, sexo);
-    if (ultimoTaf === 'A2')
-        tempoRefSeg =  tempoRefSeg * 1.17; //taf 30 anos masc 100 -> 80
-    else if (ultimoTaf === 'A3')
-        tempoRefSeg = tempoRefSeg * 1.27; //taf 30 anos masc 100 -> 70
+    console.log("TEMPO REF SEG ORIGINAL", tempoRefSeg);
+    tempoRefSeg =  tempoRefSeg *  fatorNivel[nivel]; //taf 30 anos masc 100 -> 80
+    console.log("TEMPO REF SEG AJUSTADO", tempoRefSeg);
+
     const proporcao = proporcaoPorNota(nota);
     const tempoSeg = tempoRefSeg * proporcao;
 
