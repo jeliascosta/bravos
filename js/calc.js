@@ -623,9 +623,9 @@ function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
     // Aplicar multiplicador com base no último TAF
     let tempoRefSeg = tempoRefPorDistanciaExp(distanciaKm, idade, sexo);
     if (ultimoTaf === 'A2')
-        tempoRefSeg =  tempoRefSeg * 1.2;
+        tempoRefSeg =  tempoRefSeg * 1.17; //taf 30 anos masc 100 -> 80
     else if (ultimoTaf === 'A3')
-        tempoRefSeg = tempoRefSeg * 1.3;
+        tempoRefSeg = tempoRefSeg * 1.27; //taf 30 anos masc 100 -> 70
     const proporcao = proporcaoPorNota(nota);
     const tempoSeg = tempoRefSeg * proporcao;
 

@@ -150,25 +150,25 @@ document.addEventListener('DOMContentLoaded', function () {
         ultimoTafEl.addEventListener('change', () => {
             const valorTaf = ultimoTafEl.value || '';
             localStorage.setItem('igdcc_ultimoTaf', valorTaf);
-            
+
             // Atualiza o card
             if (typeof atualizarCardOverlayDoShareCard === 'function') {
                 atualizarCardOverlayDoShareCard();
             }
-            
+
             // Atualiza as tabelas de referência
             preencherTabelaReferencia();
-            
+
             // Atualiza a tabela de notas
             if (typeof atualizarTabelaNotas === 'function') {
                 atualizarTabelaNotas();
             }
-            
+
             // Atualiza os gráficos
             if (typeof gerarGraficos === 'function') {
                 gerarGraficos();
             }
-            
+
             // Atualiza o título dos gráficos
             if (typeof atualizarTituloGraficos === 'function') {
                 atualizarTituloGraficos();
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return `${low}-${high}`;
             }
 
-            const frasesHomem = {
+            let frasesHomem = {
                 '50-59': '😁 VIBRANDO!!! 😁',
                 '60-69': '🎯💪 ZONA 2, TÁ PAGO!! 💪🎯',
                 '70-79': '🏃‍♂️👏 QUE TREINO TOP!! 👏🏃‍♂️',
@@ -307,16 +307,44 @@ document.addEventListener('DOMContentLoaded', function () {
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
                 '100': '💯🏆😂 DE BIKE, CTZ 😂🏆💯'
             };
-            const frasesMulher = {
+            if (ultimoTaf === "A3") { //🔝
+                frasesHomem = {
+                    ...frasesHomem,
+                    '90-99': '📈🔝 ALÔ A2, CHEGANDO!! 🔝📈',
+                    '100': '💯🅰️2️⃣ A2: À ORDEM! 🅰️2️⃣💯'
+                }
+            }
+            if (ultimoTaf === "A2") { //🔝
+                frasesHomem = {
+                    ...frasesHomem,
+                    '90-99': '😎📈 ALÔ A1, CHEGANDO!! 📈😎',
+                    '100': '💯🅰️1️⃣ A1: PRONTO PARA! 🅰️1️⃣💯'
+                }
+            }
+            let frasesMulher = {
                 ...frasesHomem,
                 '70-79': '🏃‍♀️👏 QUE TREINO TOP!! 👏🏃‍♀️',
                 '80-89': '🔥🏃‍♀️👉 SÉRIO ISSO?!! 👈🏃‍♀️🔥',
             };
-            const frasesCardPrint = {
+            let frasesCardPrint = {
                 '60-69': '🎯 ZONA 2, PAGO!! 🎯',
                 '80-89': '🔥 SÉRIO ISSO?!! 🔥',
                 '90-99': '⚡ DANGER ZONE ⚡',
                 '100': '💯😂 DE BIKE, CTZ 😂💯'
+            }
+            if (ultimoTaf === "A3") { //🔝
+                frasesCardPrint = {
+                    ...frasesCardPrint,
+                    '90-99': '📈 ALÔ A2, CHEGANDO!! 📈',
+                    '100': '💯 A2: À ORDEM!! 💯'
+                }
+            }
+            if (ultimoTaf === "A2") { //🔝
+                frasesCardPrint = {
+                    ...frasesCardPrint,
+                    '90-99': '📈 ALÔ A1, CHEGANDO!! 📈',
+                    '100': '💯 A1: PRONTO PARA! 💯'
+                }
             }
             const frasesHomemCardPrint = {
                 ...frasesHomem,
@@ -361,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const gold = 'rgb(255, 209, 102)'; // nota 100
             const goldM80 = 'rgb(255, 194, 51)'; // nota 100
 
-// ultimoTaf is already defined in the parent scope
+            // ultimoTaf is already defined in the parent scope
 
             let bgStart, bgEnd;
             if (ultimoTaf !== 'A1') {
@@ -473,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
             zonePhraseEl.textContent = phrase;
 
             // Aplicar cor rgb(254, 240, 165) quando a nota estiver entre 90 e 99
-            if (notaInteiro >= 90 && notaInteiro < 100) {
+            if (ultimoTaf === "A1" && notaInteiro >= 90 && notaInteiro < 100) {
                 zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
             } else {
                 zonePhraseEl.style.color = ''; // resetar para cor padrão
