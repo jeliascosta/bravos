@@ -54,11 +54,17 @@
                     <input type="number" id="idade" value="35" required style="width: 90%;">
                 </div>
                 <div style="width: 130px;">
-                    <label for="ultimoTaf" style="font-size: 0.8em; margin-bottom: 4px; display: block; text-align: center;">📶 Nota TAF | Nível</label>
-                    <select id="ultimoTaf" style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
-                        <option value="C1">100 | C1</option>
-                        <option value="C2" selected>≥80 e <100 | C2</option>
-                        <option value="C3">≥50 e <80 | C3</option>
+                    <label for="ultimoTaf"
+                        style="font-size: 0.8em; margin-bottom: 4px; display: block; text-align: center;">📶 Nota TAF |
+                        Nível</label>
+                    <select id="ultimoTaf"
+                        style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
+                        <option value="Z">100 | Z</option>
+                        <option value="A">≥90 e <100 | A</option>
+                        <option value="B1" selected>≥80 e <90 | B1</option>
+                        <option value="B2">≥70 e <80 | B2</option>
+                        <option value="C1">≥60 e <70 | C1</option>
+                        <option value="C2">≥50 e <60 | C2</option>
                     </select>
                 </div>
             </div>
@@ -75,15 +81,21 @@
                     <input type="number" id="distancia" step="0.01" value="5" required style="width: 92%">
                 </div>
                 <div style="width: 100px;">
-                    <label for="intervalado" style="font-size: 0.8em; margin-bottom: 4px; display: block;text-align: center;">⏸️ Intervalado?</label>
-                    <select id="intervalado" style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
+                    <label for="intervalado"
+                        style="font-size: 0.8em; margin-bottom: 4px; display: block;text-align: center;">⏸️
+                        Intervalado?</label>
+                    <select id="intervalado"
+                        style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
                         <option value="nao">Não</option>
                         <option value="sim">Sim</option>
                     </select>
                 </div>
             </div>
 
-            <div id="obsIntervalado" style="display:none; margin: 0px 0px 15px 0px;text-align: justify;font-size: 0.8rem;">OBS: O IGDCC (ainda) não possui um critério técnico para atribuir nota a treinos intervalados. Caso possua uma sugestão de como ajustar a equivalência, entre em contato com o desenvolvedor!</div>
+            <div id="obsIntervalado"
+                style="display:none; margin: 0px 0px 15px 0px;text-align: justify;font-size: 0.8rem;">OBS: O IGDCC
+                (ainda) não possui um critério técnico para atribuir nota a treinos intervalados. Caso possua uma
+                sugestão de como ajustar a equivalência, entre em contato com o desenvolvedor!</div>
 
             <button type="submit">🧮 Calcular IGDCC</button>
         </form>
@@ -145,8 +157,10 @@
             </div>
 
             <div id="cardActions" style="display:none;gap:8px; width:100%; align-items:stretch;">
-                <button class="compose-export" type="button" id="copyHustlePointsBtn" style="flex:1 1 0;">📑 Copiar Pontos Hustle</button>
-                <button class="compose-export" type="button" id="copyCardBtn"  style="flex:1 1 0;">📋 Compartilhar Card</button>
+                <button class="compose-export" type="button" id="copyHustlePointsBtn" style="flex:1 1 0;">📑 Copiar
+                    Pontos Hustle</button>
+                <button class="compose-export" type="button" id="copyCardBtn" style="flex:1 1 0;">📋 Compartilhar
+                    Card</button>
             </div>
 
         </div>
