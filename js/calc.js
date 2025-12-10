@@ -125,12 +125,12 @@ const fatorSexo = [
 ];
 
 const fatorNivel = { //Fatores de queda do TAF 2400M masc 34 a 39 anos
-    "Z1": 1,
-    "Z2": 1.0741,
-    "A1": 1.1481,
-    "A2": 1.2407,
-    "B1": 1.3426,
-    "B2": 1.4352,
+    "A1": 1,
+    "A2": 1.0741,
+    "B1": 1.1481,
+    "B2": 1.2407,
+    "C1": 1.3426,
+    "C2": 1.4352,
 }
 
 // -------------------CONVERSÃO DE TEMPOS----------------------------
@@ -458,7 +458,7 @@ function tempoRefPorDistanciaExp(distanciaKm, idade, sexo) {
 
 // -------------------CÁLCULO DE NOTAS----------------------------
 
-function calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf = 'Z1') {
+function calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf = 'A1') {
     const pacePartes = pace.split(":").map(Number);
     const paceSegundos = pacePartes[0] * 60 + pacePartes[1];
     const tempo = segundosParaTempo(paceSegundos * distancia);
@@ -482,13 +482,13 @@ function calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf = 'Z1') {
 //     const proporcao0  = 4.0;  // extrapolação simétrica
 //     const notaY1 = 50;
 //     const notaY2 = 89;
-//     const nota100 = 100;
+//     const notB100 = 100;
 
 //     // expoentes de curvatura
 //     const expoenteSobre = 2.0; // sobrelinear entre 50–90
 //     const expoenteSub = 0.6;   // sublinear entre 90–100
 
-//     if (nota >= nota100) {
+//     if (nota >= notB100) {
 //         // extrapolação acima de 100 → cada ponto extra reduz ~1% do tempo
 //         const fatorExtra = 0.01;
 //         return proporcao100 * (1 - (nota - 100) * fatorExtra);
@@ -500,9 +500,9 @@ function calcularNotaPorPace(pace, idade, sexo, distancia, ultimoTaf = 'Z1') {
 //         return proporcaoY1 + (proporcao0 - proporcaoY1) * Math.pow(t, 1 / expoenteSub);
 //     }
 
-//     if (nota >= notaY2 && nota <= nota100) {
+//     if (nota >= notaY2 && nota <= notB100) {
 //         // 90–100: sublinear (curva suaviza até 100)
-//         const t = (nota - notaY2) / (nota100 - notaY2);
+//         const t = (nota - notaY2) / (notB100 - notaY2);
 //         return proporcaoY2 + (proporcao100 - proporcaoY2) * Math.pow(t, expoenteSub);
 //     }
 
@@ -550,9 +550,9 @@ function proporcaoPorNota(nota) {
 //     const proporcao0 = 2.0;
 //     const nota0 = 0;
 //     const nota90 = 90;
-//     const nota100 = 100;
+//     const notB100 = 100;
 
-//     if (nota >= nota100) {
+//     if (nota >= notB100) {
 //         // acima de 100 → ~1% mais rápido por ponto
 //         const fatorExtra = 0.01;
 //         return proporcao100 * (1 - (nota - 100) * fatorExtra);
@@ -575,17 +575,17 @@ function proporcaoPorNota(nota) {
 //     } else {
 //         // 90→100: curva sublinear (expoente < 1)
 //         // 1.0 → 0.6 cria suavização até 100
-//         const t = (nota - nota90) / (nota100 - nota90);
+//         const t = (nota - nota90) / (notB100 - nota90);
 //         expoente = 1.0 - 0.4 * t;
 //     }
 
 //     // cálculo da proporção usando expoente dinâmico
-//     const t = (nota - nota0) / (nota100 - nota0);
+//     const t = (nota - nota0) / (notB100 - nota0);
 //     return proporcao0 + (proporcao100 - proporcao0) * Math.pow(t, expoente);
 // }
 
 
-function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'Z1') {
+function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
     const tempoSeg = tempoParaSegundos(tempo);
 
     let notaMin = 0;
@@ -630,7 +630,7 @@ function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'Z1') {
 }
 
 // --- Função inversa: dado nota → tempo e pace ---
-function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, nivel = 'Z1') {
+function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, nivel = 'A1') {
     console.log("NÍVEL:", nivel, fatorNivel[nivel]);
     // Aplicar multiplicador com base no último TAF
     let tempoRefSeg = tempoRefPorDistanciaExp(distanciaKm, idade, sexo);
