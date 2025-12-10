@@ -307,39 +307,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
                 '100': '💯🏆😂 DE BIKE, CTZ 😂🏆💯'
             };
-            if (ultimoTaf === "B2") { //🔝
+            if (ultimoTaf === "B2") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🔝 OLHA O B1 ALI!! 🔝📈',
+                    '90-99': '📈🏅 ALÔ, B1?!! 🏅📈',
                     '100': '💯😎 B1, TÔ NA ÁREA! 😎💯'
                 }
             }
-            if (ultimoTaf === "B1") { //🔝
+            if (ultimoTaf === "B1") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🔝 ALÔ, ALFA?!! 🔝📈',
+                    '90-99': '📈🏅 ALFA ZONE 🏅📈',
                     '100': '💯😎 ALFA, CHEGUEI! 😎💯'
                 }
             }
-            if (ultimoTaf === "A2") { //🔝
+            if (ultimoTaf === "A2") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🔝 OLHA O A1 ALI!! 🔝📈',
+                    '90-99': '📈🏅 ALÔ, A1?!! 🏅📈',
                     '100': '💯😎 A1, TÔ NA ÁREA! 😎💯'
                 }
             }
-            if (ultimoTaf === "A1") { //🔝
+            if (ultimoTaf === "A1") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🔝 ALÔ, ZULU?!! 🔝📈',
+                    '90-99': '📈🏅 ZULU ZONE 🏅📈',
                     '100': '💯😎 ZULU, CHEGUEI! 😎💯'
                 }
             }
-            if (ultimoTaf === "Z2") { //🔝
+            if (ultimoTaf === "Z2") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🔝 OLHA O Z1 ALI!! 🔝📈',
-                    '100': '💯😎 Z1, CHEGUEI! 😎💯'
+                    '90-99': '📈🏅 ALÔ, Z1?!! 🏅📈',
+                    '100': '💯🛴 Z1, TÔ NA ÁREA! 🛴💯'
                 }
             }
             let frasesMulher = {
@@ -356,36 +356,36 @@ document.addEventListener('DOMContentLoaded', function () {
             if (ultimoTaf === "B2") { //🔝
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈 OLHA O B1 ALI!! 📈',
+                    '90-99': '📈🏅 ALÔ, B1?!! 🏅📈',
                     '100': '💯 B1, TÔ NA ÁREA! 💯'
                 }
             }
             if (ultimoTaf === "B1") { //🔝
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈 ALÔ, ALFA?!! 📈',
+                    '90-99': '📈🏅 ALFA ZONE 🏅📈',
                     '100': '💯 ALFA, CHEGUEI! 💯'
                 }
             }
             if (ultimoTaf === "A2") { //🔝
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈 OLHA O A1 ALI!! 📈',
+                    '90-99': '📈🏅 ALÔ, A1?!! 🏅📈',
                     '100': '💯 A1, TÔ NA ÁREA! 💯'
                 }
             }
             if (ultimoTaf === "A1") { //🔝
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈 ALÔ, ZULU?!! 📈',
-                    '100': '💯 ZULU, CHEGUEI! 💯'
+                    '90-99': '📈🏅 ZULU ZONE 🏅📈',
+                    '100': '💯😎 ZULU, CHEGUEI! 😎💯'
                 }
             }
             if (ultimoTaf === "Z2") { //🔝
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈 OLHA O Z1 ALI!! 📈',
-                    '100': '💯 Z1, CHEGUEI! 💯'
+                    '90-99': '📈🏅 ALÔ, Z1?!! 🏅📈',
+                    '100': '💯🛴 Z1, TÔ NA ÁREA! 🛴💯'
                 }
             }
             const frasesHomemCardPrint = {
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // ultimoTaf is already defined in the parent scope
 
             let bgStart, bgEnd;
-            if (notaInteiro === 100) {
+            if (ultimoTaf === "Z1" && notaInteiro === 100) {
                 bgStart = gold;
                 bgEnd = gold;
             }
@@ -454,20 +454,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             else {
-                // >= 90: manter lógica atual de pretos e ouro
-                if (notaInteiro < 95) {
-                    const t = (notaInteiro - 90) / 5; // 0..1 (90->95)
-                    bgStart = interpolarRgb(black90Start, black, t);
-                    bgEnd = interpolarRgb(black90End, black, t);
-                } else if (notaInteiro < 100) {
-                    bgStart = black;
-                    bgEnd = black;
+                if (ultimoTaf === "Z1") {
+                    // >= 90: manter lógica atual de pretos e ouro
+                    if (notaInteiro < 95) {
+                        const t = (notaInteiro - 90) / 5; // 0..1 (90->95)
+                        bgStart = interpolarRgb(black90Start, black, t);
+                        bgEnd = interpolarRgb(black90End, black, t);
+                    } else if (notaInteiro < 100) {
+                        bgStart = black;
+                        bgEnd = black;
+                    }
+                }
+                else {
+                    bgStart = black90Start;
+                    bgEnd = black90End;
                 }
             }
 
             // cor do texto — fixa por sexo para < 90 (sem variação por luminância)
             let textColor;
-            if (notaInteiro === 100) {
+            if (ultimoTaf === "Z1" && notaInteiro === 100) {
                 textColor = sexo === 'F' ? '#2c0045ff' : '#002157ff';
             }
             else if (notaInteiro < 90) {
@@ -533,12 +539,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const zonePhraseEl = document.getElementById('zonePhrase');
             zonePhraseEl.textContent = phrase;
 
+            zonePhraseEl.style.color = ''; // resetar para cor padrão
             // Aplicar cor rgb(254, 240, 165) quando a nota estiver entre 90 e 99
-            if (notaInteiro >= 90 && notaInteiro < 100) {
+            if (notaInteiro >= 90 && ((ultimoTaf !== "Z1" && notaInteiro <= 100) || notaInteiro < 100))
                 zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
-            } else {
-                zonePhraseEl.style.color = ''; // resetar para cor padrão
-            }
+
             // Exibe o botão copiar e opções se o card existir
             const acoesCard = document.getElementById('cardActions');
             const opcoesCard = document.getElementById('opcoesCard');
@@ -1346,7 +1351,7 @@ function prepararCardClonado(srcCard, clone) {
             const hustleDiv = document.createElement('div');
             hustleDiv.className = 'hustle-points-display';
             hustleDiv.style.textAlign = 'center';
-            hustleDiv.style.margin = '10px 0 5px 0';
+            hustleDiv.style.margin = '5px 0 0 0';
             hustleDiv.style.fontSize = '1rem';
             hustleDiv.style.fontWeight = '800';
             hustleDiv.style.color = srcHustlePoints.style.color || '';
@@ -1380,7 +1385,7 @@ function prepararCardClonado(srcCard, clone) {
                 const pf = (srcCard && srcCard.dataset && srcCard.dataset.phrasePrint) || '';
                 if (pf) zp.textContent = pf;
             } catch (_) { }
-            zp.style.marginTop = '5px'; // Reduzido para acomodar os pontos Hustle
+            // zp.style.marginTop = '5px'; // Reduzido para acomodar os pontos Hustle
             // remover blur no clone (print/export)
             zp.style.backdropFilter = 'none';
             zp.style.webkitBackdropFilter = 'none';
