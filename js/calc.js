@@ -4,9 +4,11 @@
 // Agora cada distância pode ter metas separadas por sexo (M e F)
 // Se faltar um dos sexos, ele será derivado automaticamente pelo fatorSexo
 const metasTop = {
-    "2.4km": {
-        M: { idade: 30, tempo: "08:14" }
-        // F será derivada de M se faltar
+    "1km": {
+        M: { idade: 30, tempo: "03:40" }
+    },
+    "2.5km": {
+        M: { idade: 30, tempo: "09:10" }
     },
     "5km": {
         F: { idade: 46, tempo: "26:40" }
@@ -24,7 +26,8 @@ window.temposRefOrig = metasTop; // Expor para index.html
 
 // --- Mapear distâncias base para km ---
 const distanciasBase = {
-    "2.4km": 2.4,
+    "1km": 1,
+    "2.5km": 2.5,
     "5km": 5,
     "10km": 10,
     "meia": 21.0975
@@ -632,7 +635,7 @@ function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, nivel = 'Z1') {
     // Aplicar multiplicador com base no último TAF
     let tempoRefSeg = tempoRefPorDistanciaExp(distanciaKm, idade, sexo);
     console.log("TEMPO REF SEG ORIGINAL", tempoRefSeg);
-    tempoRefSeg =  tempoRefSeg *  fatorNivel[nivel]; //taf 30 anos masc 100 -> 80
+    tempoRefSeg = tempoRefSeg * fatorNivel[nivel]; //taf 30 anos masc 100 -> 80
     console.log("TEMPO REF SEG AJUSTADO", tempoRefSeg);
 
     const proporcao = proporcaoPorNota(nota);

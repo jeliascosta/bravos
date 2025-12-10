@@ -427,6 +427,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // const strongM80 = 'rgb(82, 206, 255)';
             const black90Start = 'rgb(40, 40, 40)'; // nota 90 bgStart (invertido)
             const black90End = 'rgb(65, 65, 65)'; // nota 90 bgEnd (invertido)
+            const silver90Start = '#a0a0a0'; // nota 90 bgStart (invertido)
+            const silver90End = '#f0f0f0'; // nota 90 bgEnd (invertido)
             const black = 'rgb(0, 0, 0)'; // nota 99 (preto total)
             const gold = 'rgb(255, 209, 102)'; // nota 100
             const goldM80 = 'rgb(255, 194, 51)'; // nota 100
@@ -454,20 +456,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             else {
-                if (ultimoTaf === "Z1") {
-                    // >= 90: manter lógica atual de pretos e ouro
-                    if (notaInteiro < 95) {
-                        const t = (notaInteiro - 90) / 5; // 0..1 (90->95)
-                        bgStart = interpolarRgb(black90Start, black, t);
-                        bgEnd = interpolarRgb(black90End, black, t);
-                    } else if (notaInteiro < 100) {
-                        bgStart = black;
-                        bgEnd = black;
+                if (ultimoTaf?.includes("Z")) {
+                    if (ultimoTaf === "Z1") {
+                        // >= 90: manter lógica atual de pretos e ouro
+                        if (notaInteiro < 95) {
+                            const t = (notaInteiro - 90) / 5; // 0..1 (90->95)
+                            bgStart = interpolarRgb(black90Start, black, t);
+                            bgEnd = interpolarRgb(black90End, black, t);
+                        } else if (notaInteiro < 100) {
+                            bgStart = black;
+                            bgEnd = black;
+                        }
+                    }
+                    else {
+                        bgStart = black90Start;
+                        bgEnd = black90End;
                     }
                 }
                 else {
-                    bgStart = black90Start;
-                    bgEnd = black90End;
+                    bgStart = silver90Start;
+                    bgEnd = silver90End;
                 }
             }
 
@@ -476,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (ultimoTaf === "Z1" && notaInteiro === 100) {
                 textColor = sexo === 'F' ? '#2c0045ff' : '#002157ff';
             }
-            else if (notaInteiro < 90) {
+            else if ((!ultimoTaf?.includes("Z") && notaInteiro >= 90) || notaInteiro < 90) {
                 textColor = sexo === 'F' ? 'rgb(54, 0, 96)' : 'rgb(0, 37, 96)';
             } else {
                 // 90–99: manter cores claras atuais por sexo
@@ -541,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             zonePhraseEl.style.color = ''; // resetar para cor padrão
             // Aplicar cor rgb(254, 240, 165) quando a nota estiver entre 90 e 99
-            if (notaInteiro >= 90 && ((ultimoTaf !== "Z1" && notaInteiro <= 100) || notaInteiro < 100))
+            if (ultimoTaf.includes('Z') && notaInteiro >= 90)
                 zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
 
             // Exibe o botão copiar e opções se o card existir
@@ -1393,7 +1401,7 @@ function prepararCardClonado(srcCard, clone) {
     } catch (_) { }
 
     // Distribui emojis somente no clone e não para nota 100
-    try { distribuirEmojisDaZonaNoCard(clone); } catch (_) { }
+    // try { distribuirEmojisDaZonaNoCard(clone); } catch (_) { }
 
     return clone;
 }
