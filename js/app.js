@@ -307,14 +307,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
                 '100': '💯🏆😂 DE BIKE, CTZ 😂🏆💯'
             };
-            if (ultimoTaf === "C2") {
+            if (ultimoTaf === "L2") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 ALÔ, C1?!! 🏅📈',
-                    '100': '💯😎 C1, TÔ NA ÁREA! 😎💯'
+                    '90-99': '📈🏅 ALÔ, L1?!! 🏅📈',
+                    '100': '💯😎 L1, TÔ NA ÁREA! 😎💯'
                 }
             }
-            if (ultimoTaf === "C1") {
+            if (ultimoTaf === "L1") {
                 frasesHomem = {
                     ...frasesHomem,
                     '90-99': '📈🏅 BRAVO ZONE 🏅📈',
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (ultimoTaf === "B1") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 ALFA ZONE 🏅📈',
+                    '90-99': '📈🏅 ZONA ALFA 🏅📈',
                     '100': '💯😎 ALFA, CHEGUEI! 😎💯'
                 }
             }
@@ -353,17 +353,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 '90-99': '⚡ DANGER ZONE ⚡',
                 '100': '💯😂 DE BIKE, CTZ 😂💯'
             }
-            if (ultimoTaf === "C2") {
+            if (ultimoTaf === "L2") {
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈🏅 ALÔ, C1?!! 🏅📈',
-                    '100': '💯 C1, TÔ NA ÁREA! 💯'
+                    '90-99': '📈🏅 ALÔ, L1?!! 🏅📈',
+                    '100': '💯 L1, TÔ NA ÁREA! 💯'
                 }
             }
-            if (ultimoTaf === "C1") {
+            if (ultimoTaf === "L1") {
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈🏅 BRAVO ZONE 🏅📈',
+                    '90-99': '📈🏅 ZONA BRAVO 🏅📈',
                     '100': '💯 BRAVO, CHEGUEI! 💯'
                 }
             }
