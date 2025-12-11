@@ -26,7 +26,7 @@
 
 <body>
     <div class="container">
-        <h1 style="margin-top: 5px;">ᯓ🏃🏻‍♀️📊 IGDCC <sub class="adicione" title="adicione">REV2</sub></h1>
+        <h1 style="margin-top: 5px;">ᯓ🏃🏻‍♀️📊 IGDCC <sub class="adicione" title="adicione">REV3</sub></h1>
         <form id="calcForm">
             <div class="input-group">
                 <!-- <label>Tipo de entrada:</label> -->
@@ -48,8 +48,25 @@
                 <input type="text" id="pace" value="04:59">
             </div>
 
-            <label for="idade">🔢 Idade:</label>
-            <input type="number" id="idade" value="35" required>
+            <div style="display: flex; gap: 8px; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label for="idade" style="margin-bottom: 4px; display: block;">🔢 Idade:</label>
+                    <input type="number" id="idade" value="35" required style="width: 92%;">
+                </div>
+                <div style="width: 90px;">
+                    <label for="ultimoTaf"
+                        style="margin-bottom: 4px; display: block; text-align: center;">📶 Nível</label>
+                    <select id="ultimoTaf"
+                        style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
+                        <option value="A1">ALFA 1</option>
+                        <option value="A2">ALFA 2</option>
+                        <option value="B1" selected>BRAVO 1</option>
+                        <option value="B2">BRAVO 2</option>
+                        <option value="L1">LIGHT 1</option>
+                        <option value="L2">LIGHT 2</option>
+                    </select>
+                </div>
+            </div>
 
             <label for="sexo">👩 Sexo:</label>
             <select id="sexo" required style="width: 100%;">
@@ -63,17 +80,23 @@
                     <input type="number" id="distancia" step="0.01" value="5" required style="width: 92%">
                 </div>
                 <div style="width: 100px;">
-                    <label for="intervalado" style="font-size: 0.8em; margin-bottom: 4px; display: block;text-align: center;">⏸️ Intervalado?</label>
-                    <select id="intervalado" style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
+                    <label for="intervalado"
+                        style="font-size: 0.8em; margin-bottom: 4px; display: block;text-align: center;">⏸️
+                        Intervalado?</label>
+                    <select id="intervalado"
+                        style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
                         <option value="nao">Não</option>
                         <option value="sim">Sim</option>
                     </select>
                 </div>
             </div>
 
-            <div id="obsIntervalado" style="display:none; margin: 0px 0px 15px 0px;text-align: justify;font-size: 0.8rem;">OBS: O IGDCC (ainda) não possui um critério técnico para atribuir nota a treinos intervalados. Caso possua uma sugestão de como ajustar a equivalência, entre em contato com o desenvolvedor!</div>
+            <div id="obsIntervalado"
+                style="display:none; margin: 0px 0px 15px 0px;text-align: justify;font-size: 0.8rem;">OBS: O IGDCC
+                (ainda) não possui um critério técnico para atribuir nota a treinos intervalados. Caso possua uma
+                sugestão de como ajustar a equivalência, entre em contato com o desenvolvedor!</div>
 
-            <button type="submit">🧮 Calcular Nota</button>
+            <button type="submit">🧮 Calcular IGDCC</button>
         </form>
 
         <div id="resultado">
@@ -83,7 +106,7 @@
                         <img src="img/heraldica.png" alt="Heraldica"
                             style="position: absolute; left: calc(50% - 48px); height: 30px; width: auto; top: 50%; transform: translateY(-60%);">
                         <div style="display: inline-block;">
-                            <span class="main">IGDCC<span class="rev">REV2</span></span>
+                            <span class="main">IGDCC<span class="rev">REV3</span></span>
                             <div class="card-date" id="cardDate"
                                 style="font-size:.7rem;font-weight:lighter;opacity:.8;margin-top:3px; margin-bottom: 5px">
                             </div>
@@ -91,7 +114,7 @@
                     </div>
                     <div class="score-big" id="scoreBig"></div>
                     <div id="scoreDistancia"
-                        style="font-family: 'Inter', sans-serif; font-size: 2.7rem; font-weight: 800; text-align: center; width: 100%; line-height: 1; letter-spacing: -0.04em;">
+                        style="display: inline-flex; justify-content: center; white-space: nowrap; font-family: 'Inter', sans-serif; font-size: 2.7rem; font-weight: 800; text-align: center; width: 100%; letter-spacing: -0.04em;padding-right: 20px;margin: -3px">
                     </div>
                     <div class="zone-small" id="zoneSmall"></div>
                     <div class="card-meta"
@@ -115,17 +138,28 @@
                 </div>
             </div>
             <div id="opcoesCard" class="hustle-toggle-container"
-                style="display: none; justify-content: center; align-items: center; margin: 10px 0;">
-                <span style="margin-right: 10px; font-weight: bold;">Mostrar Pontos Hustle:</span>
-                <label class="switch" title="Mostrar/ocultar pontos">
-                    <input type="checkbox" id="toggleHustle" checked>
-                    <span class="slider round"></span>
-                </label>
+                style="display: none; justify-content: center; align-items: center; margin: 10px 0; gap: 20px;">
+                <div style="display: flex; align-items: center;">
+                    <span style="margin-right: 10px; font-weight: bold;">Mostrar Pontos Hustle:</span>
+                    <label class="switch" title="Mostrar/ocultar pontos">
+                        <input type="checkbox" id="toggleHustle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <span style="margin-right: 10px; font-weight: bold;">Mostrar Pace:</span>
+                    <label class="switch" title="Mostrar/ocultar pace">
+                        <input type="checkbox" id="togglePace" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
             </div>
 
             <div id="cardActions" style="display:none;gap:8px; width:100%; align-items:stretch;">
-                <button class="compose-export" type="button" id="copyHustlePointsBtn" style="flex:1 1 0;">📑 Copiar Pontos Hustle</button>
-                <button class="compose-export" type="button" id="copyCardBtn"  style="flex:1 1 0;">📋 Compartilhar Card</button>
+                <button class="compose-export" type="button" id="copyHustlePointsBtn" style="flex:1 1 0;">📑 Copiar
+                    Pontos Hustle</button>
+                <button class="compose-export" type="button" id="copyCardBtn" style="flex:1 1 0;">📋 Compartilhar
+                    Card</button>
             </div>
 
         </div>
