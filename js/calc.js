@@ -11,11 +11,12 @@ const metasTop = {
         M: { idade: 30, tempo: "09:10" }
     },
     "5km": {
+        M: { idade: 30, tempo: "19:59" },
         F: { idade: 46, tempo: "26:40" }
     },
     "10km": {
         F: { idade: 46, tempo: "56:40" },
-        M: { idade: 38, tempo: "40:00" },
+        M: { idade: 38, tempo: "41:47" },
     },
     "meia": {
         F: { idade: 46, tempo: "125:00" }

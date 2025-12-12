@@ -549,8 +549,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             zonePhraseEl.style.color = ''; // resetar para cor padrão
             // Aplicar cor rgb(254, 240, 165) quando a nota estiver entre 90 e 99
-            if (ultimoTaf.includes('A') && notaInteiro >= 90)
-                zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
+            if (ultimoTaf.includes('A') && notaInteiro >= 90 && notaInteiro <= 100) {
+                if (ultimoTaf !== "A1" || notaInteiro < 100) {
+                    zonePhraseEl.style.color = 'rgba(242, 244, 164, 1)';
+                }
+            }
 
             // Exibe o botão copiar e opções se o card existir
             const acoesCard = document.getElementById('cardActions');
@@ -1596,8 +1599,18 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const segundosParaTempo = (seg) => {
-        const min = Math.floor(seg / 60);
-        const s = Math.round(seg % 60);
+        let min = Math.floor(seg / 60);
+        let s = seg % 60;
+
+        // Arredonda os segundos
+        s = Math.round(s);
+
+        // Se virou 60, ajusta
+        if (s === 60) {
+            min += 1;
+            s = 0;
+        }
+
         return `${min}:${s.toString().padStart(2, "0")}`;
     };
 
