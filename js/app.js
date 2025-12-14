@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const black90End = 'rgb(65, 65, 65)'; // nota 90 bgEnd (invertido)
             const silverL90Start = 'rgb(225, 225, 225)'; // nota 90 bgStart (invertido)
             const silverL90End = 'rgb(240, 240, 240)'; // nota 90 bgEnd (invertido)
-            const silverB90Start = 'rgb(190, 190, 190)'; // nota 90 bgStart (invertido)
+            const silverB90Start = 'rgb(180, 180, 180)'; // nota 90 bgStart (invertido)
             const silverB90End = 'rgb(240, 240, 240)'; // nota 90 bgEnd (invertido)
             const black = 'rgb(0, 0, 0)'; // nota 99 (preto total)
             const gold = 'rgb(255, 209, 102)'; // nota 100
