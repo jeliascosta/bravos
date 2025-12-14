@@ -632,12 +632,12 @@ function calcularNota(tempo, idade, sexo, distanciaKm, ultimoTaf = 'A1') {
 
 // --- Função inversa: dado nota → tempo e pace ---
 function tempoEPaceParaNota(nota, idade, sexo, distanciaKm, nivel = 'A1') {
-    console.log("NÍVEL:", nivel, fatorNivel[nivel]);
+    // console.log("NÍVEL:", nivel, fatorNivel[nivel]);
     // Aplicar multiplicador com base no último TAF
     let tempoRefSeg = tempoRefPorDistanciaExp(distanciaKm, idade, sexo);
-    console.log("TEMPO REF SEG ORIGINAL", tempoRefSeg);
+    // console.log("TEMPO REF SEG ORIGINAL", tempoRefSeg);
     tempoRefSeg = tempoRefSeg * fatorNivel[nivel]; //taf 30 anos masc 100 -> 80
-    console.log("TEMPO REF SEG AJUSTADO", tempoRefSeg);
+    // console.log("TEMPO REF SEG AJUSTADO", tempoRefSeg);
 
     const proporcao = proporcaoPorNota(nota);
     const tempoSeg = tempoRefSeg * proporcao;
