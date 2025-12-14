@@ -303,7 +303,7 @@ tr:hover {
 /* Share card estilo app de corrida */
 .share-card {
     width: 'fit-content';
-    border-radius: 20px;
+    border-radius: 25px;
     padding: 10px 5px;
     box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
     display: flex;
