@@ -1006,6 +1006,11 @@ function configurarCompositor() {
     function aplicarBorderRadius() {      
         const { 'top-left': tl, 'top-right': tr, 'bottom-right': br, 'bottom-left': bl } = currentBorderRadius;
         const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+        
+        // Store in _compose for later use
+        if (_compose) {
+            _compose.currentBorderRadius = { ...currentBorderRadius };
+        }
                 
         // Atualizar também o card clonado se existir
         const cardClonado = document.querySelector('#composeOverlay .share-card');
@@ -1439,6 +1444,17 @@ function garantirCardOverlay() {
     if (!_compose) return;
     const srcCard = document.getElementById('shareCard');
     if (!srcCard || srcCard.style.display === 'none') return;
+    
+    // Get current border radius from _compose or use defaults from controls
+    const currentBorderRadius = _compose.currentBorderRadius || {
+        'top-left': parseInt(document.querySelector('.border-radius-control[data-corner="top-left"]')?.value || '25'),
+        'top-right': parseInt(document.querySelector('.border-radius-control[data-corner="top-right"]')?.value || '25'),
+        'bottom-left': parseInt(document.querySelector('.border-radius-control[data-corner="bottom-left"]')?.value || '25'),
+        'bottom-right': parseInt(document.querySelector('.border-radius-control[data-corner="bottom-right"]')?.value || '25')
+    };
+    
+    // Update _compose with current values
+    _compose.currentBorderRadius = { ...currentBorderRadius };
     if (_compose.cardEl && _compose.cardEl.parentElement) {
         // atualizar conteúdo
         const posLeft = _compose.cardEl.style.left;
@@ -1461,6 +1477,12 @@ function garantirCardOverlay() {
         const s = (_compose.scale / 100);
         _compose.cardEl.style.transformOrigin = 'top left';
         _compose.cardEl.style.transform = `scale(${s})`;
+        // Reaplicar border radius após recriar o card
+        if (currentBorderRadius) {
+            const { 'top-left': tl, 'top-right': tr, 'bottom-right': br, 'bottom-left': bl } = currentBorderRadius;
+            const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+            _compose.cardEl.style.borderRadius = borderRadius;
+        }
         return;
     }
     const clone = clonarCardCompartilhar(srcCard);
@@ -1495,6 +1517,13 @@ function garantirCardOverlay() {
     clone.style.width = contentWidth + 'px';
     clone.style.minWidth = contentWidth + 'px';
     clone.style.maxWidth = contentWidth + 'px';
+    // Aplicar border radius ao card recém-criado
+    if (currentBorderRadius) {
+        const { 'top-left': tl, 'top-right': tr, 'bottom-right': br, 'bottom-left': bl } = currentBorderRadius;
+        const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+        clone.style.borderRadius = borderRadius;
+    }
+    
     // aplica escala do slider via transform se existir
     if (_compose.scaleInput) {
         const perc = Number(_compose.scaleInput.value) || 100;
@@ -1728,6 +1757,12 @@ function atualizarCardOverlayDoShareCard() {
         const s2 = (_compose.scale / 100);
         fresh.style.transformOrigin = 'top left';
         fresh.style.transform = `scale(${s2})`;
+        
+        // Manter o border radius ao atualizar o card
+        if (_compose.currentBorderRadius) {
+            const { 'top-left': tl, 'top-right': tr, 'bottom-right': br, 'bottom-left': bl } = _compose.currentBorderRadius;
+            fresh.style.borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+        }
 
         _compose.cardEl.replaceWith(fresh);
         _compose.cardEl = fresh;
