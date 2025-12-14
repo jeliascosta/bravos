@@ -993,10 +993,10 @@ function configurarCompositor() {
     
     // Valores padrão para o border radius
     const defaultBorderRadius = {
-        'top-left': 20,
-        'top-right': 20,
-        'bottom-left': 20,
-        'bottom-right': 20
+        'top-left': 25,
+        'top-right': 25,
+        'bottom-left': 25,
+        'bottom-right': 25
     };
     
     // Estado atual do border radius
@@ -1012,12 +1012,44 @@ function configurarCompositor() {
         if (cardClonado) {
             cardClonado.style.borderRadius = borderRadius;
         }
+        
+        // Retornar o valor para uso imediato se necessário
+        return borderRadius;
+    }
+    
+    // Salvar configurações de borda no localStorage
+    function salvarConfiguracoesBorda() {
+        localStorage.setItem('borderRadiusConfig', JSON.stringify(currentBorderRadius));
+    }
+    
+    // Carregar configurações de borda do localStorage
+    function carregarConfiguracoesBorda() {
+        const savedConfig = localStorage.getItem('borderRadiusConfig');
+        if (savedConfig) {
+            try {
+                const config = JSON.parse(savedConfig);
+                // Apenas atualiza os valores, sem aplicar ainda
+                Object.keys(defaultBorderRadius).forEach(corner => {
+                    if (config[corner] !== undefined) {
+                        currentBorderRadius[corner] = config[corner];
+                        const input = document.querySelector(`.border-radius-control[data-corner="${corner}"]`);
+                        if (input) input.value = config[corner];
+                    }
+                });
+                return true; // Indica que há configurações salvas
+            } catch (e) {
+                console.error('Erro ao carregar configurações de borda:', e);
+                return false;
+            }
+        }
+        return false;
     }
     
     // Atualizar um canto específico
     function atualizarCanto(corner, value) {
-        currentBorderRadius[corner] = parseInt(value, 20);
+        currentBorderRadius[corner] = parseInt(value, 10);
         aplicarBorderRadius();
+        salvarConfiguracoesBorda();
     }
     
     // Resetar todos os cantos para os valores padrão
@@ -1052,9 +1084,46 @@ function configurarCompositor() {
     // Configurar botão de reset
     resetBorderRadiusBtn.addEventListener('click', resetarBorderRadius);
     
-    // Inicializar border radius
-    resetarBorderRadius();
-    // manter overlay invisível até que a imagem esteja carregada
+    // Carregar configurações iniciais, mas não aplicar ainda
+    const temConfigSalva = carregarConfiguracoesBorda();
+    if (!temConfigSalva) {
+        resetarBorderRadius();
+    }
+    
+    // Aplicar as configurações quando a imagem for carregada
+    const aplicarConfigAposCarregamento = () => {
+        const borderRadius = aplicarBorderRadius();
+        
+        // Se houver um MutationObserver, aplicar o border radius quando o card for clonado
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length) {
+                    const cardClonado = document.querySelector('#composeOverlay .share-card');
+                    if (cardClonado) {
+                        cardClonado.style.borderRadius = borderRadius;
+                        observer.disconnect();
+                        break;
+                    }
+                }
+            }
+        });
+        
+        // Observar mudanças no container do overlay
+        observer.observe(sobreposicao, { childList: true, subtree: true });
+        
+        // Remover o event listener após o primeiro uso
+        imagem.removeEventListener('load', aplicarConfigAposCarregamento);
+    };
+    
+    if (imagem.complete) {
+        // Se a imagem já estiver carregada, aplicar imediatamente
+        aplicarConfigAposCarregamento();
+    } else {
+        // Caso contrário, aguardar o carregamento
+        imagem.addEventListener('load', aplicarConfigAposCarregamento);
+    }
+    
+    // Manter overlay invisível até que a imagem esteja carregada
     try { sobreposicao.style.visibility = 'hidden'; } catch (_) { }
     if (botaoCompartilhar) botaoCompartilhar.disabled = true;
 
