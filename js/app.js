@@ -262,6 +262,27 @@ document.addEventListener('DOMContentLoaded', function () {
         const sexo = document.getElementById('sexo').value;
         const distancia = obterDistanciaFormatada();
 
+        // Verificar se o pace é menor que 2:50
+        let paceSegundos = 0;
+
+        if (tipoEntrada === 'tempo') {
+            const tempo = document.getElementById('tempo').value;
+            const distancia = parseFloat(document.getElementById('distancia').value);
+            if (distancia > 0) {
+                const tempoSegundos = tempoStringParaSegundos(tempo);
+                paceSegundos = tempoSegundos / distancia;
+            }
+        } else {
+            const pace = document.getElementById('pace').value;
+            paceSegundos = tempoStringParaSegundos(pace);
+        }
+
+        // 2:30 em segundos = 170 segundos
+        if (paceSegundos > 0 && paceSegundos < 150) {
+            alert('Pace menor que 02:30?!! Melhor que o Kipchoge?!! 👀 Olha o golpe hein... 😅 Verifique!');
+            return false;
+        }
+
         try {
             let nota;
             let notaA1;
@@ -581,11 +602,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof recalibrarLarguraOverlayDaOrigem === 'function') recalibrarLarguraOverlayDaOrigem();
         } catch (error) {
             const shareCardEl = document.getElementById('shareCard');
-            if (shareCardEl) {
+            if (shareCardEl)
                 shareCardEl.style.display = 'none';
-            }
+
             document.getElementById('nota').innerHTML = `<div style="color: red;">Erro: ${error.message}</div>`;
         }
+
+        setTimeout(atualizarBotaoCopiarHustle, 0); // Garante que o botão seja atualizado após o cálculo
     });
 
     preencherTabelaReferencia();
@@ -874,14 +897,6 @@ function atualizarBotaoCopiarHustle() {
         }
     }
 }
-
-
-// Atualizar o botão quando o formulário for enviado
-document.getElementById('calcForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    // Código existente de cálculo...
-    setTimeout(atualizarBotaoCopiarHustle, 0); // Garante que o botão seja atualizado após o cálculo
-});
 
 // Adicionar listener para o toggle de mostrar/ocultar pontos Hustle
 document.getElementById('toggleHustle').addEventListener('change', function () {
