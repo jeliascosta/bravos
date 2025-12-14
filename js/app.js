@@ -1070,6 +1070,30 @@ function configurarCompositor() {
     const EXPORT_LARGURA_ALVO = 3000;
     const EXPORT_MIME = 'image/png';
     const EXPORT_QUALITY = 0.92;
+    
+    // Salvar configuração de escala no localStorage
+    function salvarConfiguracaoEscala() {
+        localStorage.setItem('cardScaleConfig', JSON.stringify(_compose.scale));
+    }
+    
+    // Carregar configuração de escala do localStorage
+    function carregarConfiguracaoEscala() {
+        const savedScale = localStorage.getItem('cardScaleConfig');
+        if (savedScale) {
+            try {
+                const scale = JSON.parse(savedScale);
+                if (scale >= 35 && scale <= 160) { // Valida se está dentro dos limites permitidos
+                    _compose.scale = scale;
+                    if (entradaEscala) entradaEscala.value = scale;
+                    if (rotuloEscala) rotuloEscala.textContent = `${scale}%`;
+                    return true;
+                }
+            } catch (e) {
+                console.error('Erro ao carregar configuração de escala:', e);
+            }
+        }
+        return false;
+    }
 
     if (!entrada || !imagem || !sobreposicao || !botaoExportar || !container || !borderRadiusControls || !resetBorderRadiusBtn) return;
     
@@ -1200,13 +1224,24 @@ function configurarCompositor() {
                     _compose.cardEl.style.transform = `scale(${s})`;
                 }
                 if (rotuloEscala) rotuloEscala.textContent = `${_compose.scale}%`;
+                salvarConfiguracaoEscala(); // Salvar a escala sempre que for alterada
             };
+            
+            // Carregar configuração salva ou usar o valor padrão
+            const temEscalaSalva = carregarConfiguracaoEscala();
+            const valorInicial = temEscalaSalva ? _compose.scale : 100;
+            
+            entradaEscala.value = valorInicial;
+            _compose.scale = valorInicial;
+            
             entradaEscala.addEventListener('input', (ev) => applyScale(ev.target.value));
-            // Label inicial + aplicar transform inicial
-            if (rotuloEscala) rotuloEscala.textContent = `${entradaEscala.value}%`;
-            // aplica no estado atual, se já houver card
+            
+            // Aplicar escala inicial
+            if (rotuloEscala) rotuloEscala.textContent = `${valorInicial}%`;
+            
+            // Aplicar transformação inicial se já houver card
             if (_compose.cardEl) {
-                const s = (Number(entradaEscala.value || 100) / 100);
+                const s = (valorInicial / 100);
                 _compose.cardEl.style.transformOrigin = 'top left';
                 _compose.cardEl.style.transform = `scale(${s})`;
             }
@@ -1302,6 +1337,7 @@ function configurarCompositor() {
                 if (_compose.scaleInput) {
                     _compose.scaleInput.value = String(Math.round(newScale));
                     if (_compose.scaleLabel) _compose.scaleLabel.textContent = `${Math.round(newScale)}%`;
+                    salvarConfiguracaoEscala(); // Salvar a escala após ajuste por pinch
                 }
                 ev.preventDefault();
                 return;
