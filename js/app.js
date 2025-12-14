@@ -323,8 +323,8 @@ document.addEventListener('DOMContentLoaded', function () {
             let frasesHomem = {
                 '50-59': '😁 VIBRANDO!!! 😁',
                 '60-69': '🎯💪 ZONA 2, TÁ PAGO!! 💪🎯',
-                '70-79': '🏃‍♂️👏 QUE TREINO TOP!! 👏🏃‍♂️',
-                '80-89': '🔥🏃‍♂️👉 SÉRIO ISSO?!! 👈🏃‍♂️🔥',
+                '70-79': '🏃‍♂️👏 SHOWD CADÊNCIA! 👏🏃‍♂️',
+                '80-89': '🔥🏃‍♂️👉 Q TREINO TOP! 👈🏃‍♂️🔥',
                 '90-99': '😱🏅⚡ DANGER ZONE ⚡🏅😱',
                 '100': '💯🏆😂 DE BIKE, CTZ 😂🏆💯'
             };
@@ -365,12 +365,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             let frasesMulher = {
                 ...frasesHomem,
-                '70-79': '🏃‍♀️👏 QUE TREINO TOP!! 👏🏃‍♀️',
-                '80-89': '🔥🏃‍♀️👉 SÉRIO ISSO?!! 👈🏃‍♀️🔥',
+                '70-79': '🏃‍♀️👏 SHOWD CADÊNCIA! 👏🏃‍♀️',
+                '80-89': '🔥🏃‍♀️👉 Q TREINO TOP! 👈🏃‍♀️🔥',
             };
             let frasesCardPrint = {
                 '60-69': '🎯 ZONA 2, PAGO!! 🎯',
-                '80-89': '🔥 SÉRIO ISSO?!! 🔥',
+                '70-79': '👏 SHOWD CADÊNCIA! 👏',
+                '80-89': '🔥 Q TREINO TOP!! 🔥',
                 '90-99': '⚡ DANGER ZONE ⚡',
                 '100': '💯😂 DE BIKE, CTZ 😂💯'
             }
@@ -412,12 +413,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const frasesHomemCardPrint = {
                 ...frasesHomem,
                 ...frasesCardPrint,
-                '70-79': '🏃‍♂️ Q TREINO TOP!! 🏃‍♂️',
             }
             const frasesMulherCardPrint = {
                 ...frasesMulher,
                 ...frasesCardPrint,
-                '70-79': '🏃‍♀️ Q TREINO TOP!! 🏃‍♀️',
             }
             const frases = sexo === 'F' ? frasesMulher : frasesHomem;
             const frasesPrint = sexo === 'F' ? frasesMulherCardPrint : frasesHomemCardPrint;
