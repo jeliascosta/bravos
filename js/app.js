@@ -427,8 +427,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // const strongM80 = 'rgb(82, 206, 255)';
             const black90Start = 'rgb(40, 40, 40)'; // nota 90 bgStart (invertido)
             const black90End = 'rgb(65, 65, 65)'; // nota 90 bgEnd (invertido)
-            const silver90Start = '#a0a0a0'; // nota 90 bgStart (invertido)
-            const silver90End = '#f0f0f0'; // nota 90 bgEnd (invertido)
+            const silverL90Start = 'rgb(200, 200, 200)'; // nota 90 bgStart (invertido)
+            const silverL90End = 'rgb(240, 240, 240)'; // nota 90 bgEnd (invertido)
+            const silverB90Start = 'rgb(220, 220, 220)'; // nota 90 bgStart (invertido)
+            const silverB90End = 'rgb(200, 200, 200)'; // nota 90 bgEnd (invertido)
             const black = 'rgb(0, 0, 0)'; // nota 99 (preto total)
             const gold = 'rgb(255, 209, 102)'; // nota 100
             const goldM80 = 'rgb(255, 194, 51)'; // nota 100
@@ -474,8 +476,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
                 else {
-                    bgStart = silver90Start;
-                    bgEnd = silver90End;
+                    if (ultimoTaf?.includes('L')) {
+                        bgStart = silverL90Start;
+                        bgEnd = silverL90End;
+                    }
+                    else {
+                        bgStart = silverB90Start;
+                        bgEnd = silverB90End;
+                    }
                 }
             }
 
