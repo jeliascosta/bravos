@@ -54,8 +54,8 @@
                     <input type="number" id="idade" value="35" required style="width: 92%;">
                 </div>
                 <div style="width: 90px;">
-                    <label for="ultimoTaf"
-                        style="margin-bottom: 4px; display: block; text-align: center;">📶 Nível</label>
+                    <label for="ultimoTaf" style="margin-bottom: 4px; display: block; text-align: center;">📶
+                        Nível</label>
                     <select id="ultimoTaf"
                         style="width: 100%; height: 38px; border-radius: 4px; border: 1px solid #ced4da; padding: 0 8px;">
                         <option value="A1">ALFA 1</option>
@@ -174,6 +174,43 @@
                     <input type="range" id="composeScale" min="35" max="160" value="100" step="1" style="width:100%;">
                     <span id="composeScaleLabel">100%</span>
                 </label>
+                <div id="borderRadiusControls" style="display: none; font-size: 0.8em; gap: 8px; flex-wrap: wrap;">
+                    <label id="borderRadiusLabel" 
+                        style="white-space: nowrap;">
+                        Arredondar canto:</label>
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <div style="flex: 1;">
+                            <label style="margin-bottom: 4px;">Superior
+                                esquerdo</label>
+                            <input type="range" class="border-radius-control" data-corner="top-left" min="0" max="50"
+                                value="10" style="width: 100%;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="margin-bottom: 4px;">Superior
+                                direito</label>
+                            <input type="range" class="border-radius-control" data-corner="top-right" min="0" max="50"
+                                value="10" style="width: 100%;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <div style="flex: 1;">
+                            <label style="margin-bottom: 4px;">Inferior
+                                esquerdo</label>
+                            <input type="range" class="border-radius-control" data-corner="bottom-left" min="0" max="50"
+                                value="10" style="width: 100%;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="margin-bottom: 4px;">Inferior
+                                direito</label>
+                            <input type="range" class="border-radius-control" data-corner="bottom-right" min="0"
+                                max="50" value="10" style="width: 100%;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; width: 100%; margin-top: 5px;">
+                        <button type="button" id="resetBorderRadius" class="compose-export"
+                            style="flex: 1; padding: 5px; font-size: 0.8em;">↺ Redefinir Bordas</button>
+                    </div>
+                </div>
                 <div id="composeActions" style="display:none; gap:8px; width:100%; align-items:stretch;">
                     <button type="button" id="composeExport" class="compose-export" style="flex:1 1 0;" disabled>💾
                         Baixar Print</button>

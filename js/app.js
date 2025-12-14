@@ -988,6 +988,50 @@ function configurarCompositor() {
     const container = document.getElementById('composeWrap');
     const entradaEscala = document.getElementById('composeScale');
     const rotuloEscala = document.getElementById('composeScaleLabel');
+    const borderRadiusControls = document.getElementById('borderRadiusControls');
+    const resetBorderRadiusBtn = document.getElementById('resetBorderRadius');
+    
+    // Valores padrão para o border radius
+    const defaultBorderRadius = {
+        'top-left': 20,
+        'top-right': 20,
+        'bottom-left': 20,
+        'bottom-right': 20
+    };
+    
+    // Estado atual do border radius
+    let currentBorderRadius = { ...defaultBorderRadius };
+    
+    // Aplicar border radius ao card
+    function aplicarBorderRadius() {      
+        const { 'top-left': tl, 'top-right': tr, 'bottom-right': br, 'bottom-left': bl } = currentBorderRadius;
+        const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+                
+        // Atualizar também o card clonado se existir
+        const cardClonado = document.querySelector('#composeOverlay .share-card');
+        if (cardClonado) {
+            cardClonado.style.borderRadius = borderRadius;
+        }
+    }
+    
+    // Atualizar um canto específico
+    function atualizarCanto(corner, value) {
+        currentBorderRadius[corner] = parseInt(value, 10);
+        aplicarBorderRadius();
+    }
+    
+    // Resetar todos os cantos para os valores padrão
+    function resetarBorderRadius() {
+        currentBorderRadius = { ...defaultBorderRadius };
+        
+        // Atualizar os controles deslizantes
+        document.querySelectorAll('.border-radius-control').forEach(input => {
+            const corner = input.dataset.corner;
+            input.value = currentBorderRadius[corner];
+        });
+        
+        aplicarBorderRadius();
+    }
 
     // parâmetros reutilizáveis para exportar/compartilhar o PRINT (compositor)
     let EXPORT_SCALE_PADRAO = 3;
@@ -995,7 +1039,21 @@ function configurarCompositor() {
     const EXPORT_MIME = 'image/png';
     const EXPORT_QUALITY = 0.92;
 
-    if (!entrada || !imagem || !sobreposicao || !botaoExportar || !container) return;
+    if (!entrada || !imagem || !sobreposicao || !botaoExportar || !container || !borderRadiusControls || !resetBorderRadiusBtn) return;
+    
+    // Configurar eventos para os controles de border radius
+    document.querySelectorAll('.border-radius-control').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const corner = e.target.dataset.corner;
+            atualizarCanto(corner, e.target.value);
+        });
+    });
+    
+    // Configurar botão de reset
+    resetBorderRadiusBtn.addEventListener('click', resetarBorderRadius);
+    
+    // Inicializar border radius
+    resetarBorderRadius();
     // manter overlay invisível até que a imagem esteja carregada
     try { sobreposicao.style.visibility = 'hidden'; } catch (_) { }
     if (botaoCompartilhar) botaoCompartilhar.disabled = true;
@@ -1045,8 +1103,10 @@ function configurarCompositor() {
                     try {
                         const scaleRow = document.getElementById('composeScaleRow');
                         const actions = document.getElementById('composeActions');
+                        const borderRadiusControls = document.getElementById('borderRadiusControls');
                         if (scaleRow) scaleRow.style.display = 'flex';
                         if (actions) actions.style.display = 'flex';
+                        if (borderRadiusControls) borderRadiusControls.style.display = 'flex';
                     } catch (_) { }
                     if (!_compose.cardEl) {
                         garantirCardOverlay();
