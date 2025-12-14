@@ -310,35 +310,35 @@ document.addEventListener('DOMContentLoaded', function () {
             if (ultimoTaf === "L2") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 ALÔ, L1?!! 🏅📈',
+                    '90-99': '📈🏅👟 ALÔ, L1?!! 👟🏅📈',
                     '100': '💯😎 L1, TÔ NA ÁREA! 😎💯'
                 }
             }
             if (ultimoTaf === "L1") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 ZONA BRAVO 🏅📈',
-                    '100': '💯😎 BRAVO, CHEGUEI! 😎💯'
+                    '90-99': '📈👉🅱️ ZONA BRAVO 🅱️👈📈',
+                    '100': '💯👏 BRAVO? PARTIU!!! 👏💯'
                 }
             }
             if (ultimoTaf === "B2") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 ALÔ, B1?!! 🏅📈',
+                    '90-99': '📈🏅👟 ALÔ, B1?!! 👟🏅📈',
                     '100': '💯😎 B1, TÔ NA ÁREA! 😎💯'
                 }
             }
             if (ultimoTaf === "B1") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 ZONA ALFA 🏅📈',
-                    '100': '💯😎 ALFA, CHEGUEI! 😎💯'
+                    '90-99': '📈👉🅰️ ZONA ALFA 🅰️👈📈',
+                    '100': '💯😎 ALFA? PARTIU!!! 😎💯'
                 }
             }
             if (ultimoTaf === "A2") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 ALÔ, A1?!! 🏅📈',
+                    '90-99': '📈🏅👟 ALÔ, A1?!! 👟🏅📈',
                     '100': '💯🛴 A1, TÔ NA ÁREA! 🛴💯'
                 }
             }
@@ -356,35 +356,35 @@ document.addEventListener('DOMContentLoaded', function () {
             if (ultimoTaf === "L2") {
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈🏅 ALÔ, L1?!! 🏅📈',
+                    '90-99': '📈👟 ALÔ, L1?!! 👟📈',
                     '100': '💯 L1, TÔ NA ÁREA! 💯'
                 }
             }
             if (ultimoTaf === "L1") {
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈🏅 ZONA BRAVO 🏅📈',
-                    '100': '💯 BRAVO, CHEGUEI! 💯'
+                    '90-99': '👉🅱️ ZONA BRAVO 🅱️👈',
+                    '100': '💯👏 BRAVO? PARTIU! 👏💯'
                 }
             }
             if (ultimoTaf === "B2") {
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈🏅 ALÔ, B1?!! 🏅📈',
+                    '90-99': '📈👟 ALÔ, B1?!! 👟📈',
                     '100': '💯 B1, TÔ NA ÁREA! 💯'
                 }
             }
             if (ultimoTaf === "B1") { //🔝
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈🏅 ALFA ZONE 🏅📈',
-                    '100': '💯😎 ALFA, CHEGUEI! 😎💯'
+                    '90-99': '👉🅰️ ZONA ALFA 🅰️👈',
+                    '100': '💯😎 ALFA? PARTIU! 😎💯'
                 }
             }
             if (ultimoTaf === "A2") {
                 frasesCardPrint = {
                     ...frasesCardPrint,
-                    '90-99': '📈🏅 ALÔ, A1?!! 🏅📈',
+                    '90-99': '🏅👟 ALÔ, A1?!! 👟🏅',
                     '100': '💯🛴 A1, TÔ NA ÁREA! 🛴💯'
                 }
             }
