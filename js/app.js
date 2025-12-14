@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (ultimoTaf === "L1") {
                 frasesHomem = {
                     ...frasesHomem,
-                    '90-99': '📈🏅 BRAVO ZONE 🏅📈',
+                    '90-99': '📈🏅 ZONA BRAVO 🏅📈',
                     '100': '💯😎 BRAVO, CHEGUEI! 😎💯'
                 }
             }
@@ -427,10 +427,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // const strongM80 = 'rgb(82, 206, 255)';
             const black90Start = 'rgb(40, 40, 40)'; // nota 90 bgStart (invertido)
             const black90End = 'rgb(65, 65, 65)'; // nota 90 bgEnd (invertido)
-            const silverL90Start = 'rgb(200, 200, 200)'; // nota 90 bgStart (invertido)
+            const silverL90Start = 'rgb(225, 225, 225)'; // nota 90 bgStart (invertido)
             const silverL90End = 'rgb(240, 240, 240)'; // nota 90 bgEnd (invertido)
-            const silverB90Start = 'rgb(220, 220, 220)'; // nota 90 bgStart (invertido)
-            const silverB90End = 'rgb(200, 200, 200)'; // nota 90 bgEnd (invertido)
+            const silverB90Start = 'rgb(190, 190, 190)'; // nota 90 bgStart (invertido)
+            const silverB90End = 'rgb(240, 240, 240)'; // nota 90 bgEnd (invertido)
             const black = 'rgb(0, 0, 0)'; // nota 99 (preto total)
             const gold = 'rgb(255, 209, 102)'; // nota 100
             const goldM80 = 'rgb(255, 194, 51)'; // nota 100
