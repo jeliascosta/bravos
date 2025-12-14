@@ -1016,7 +1016,7 @@ function configurarCompositor() {
     
     // Atualizar um canto específico
     function atualizarCanto(corner, value) {
-        currentBorderRadius[corner] = parseInt(value, 10);
+        currentBorderRadius[corner] = parseInt(value, 20);
         aplicarBorderRadius();
     }
     
