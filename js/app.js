@@ -23,7 +23,7 @@ function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
     }
 
     // Cálculo normal para treinos contínuos
-    const notaBaseF = calcularNotaPorPace("7:00", idade, 'F', distanciaAtual, "A1");
+    const notaBaseF = calcularNotaPorPace("7:00", 25, 'F', distanciaAtual, "A1");
     let notaBase = notaBaseF;
 
     // if (notaIGDCC < notaBase)
