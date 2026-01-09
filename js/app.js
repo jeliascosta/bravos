@@ -214,44 +214,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Handler para copiar/baixar somente o card (movido do index.html)
     const btn = document.getElementById('copyCardBtn');
-    if (!btn) return;
-    btn.addEventListener('click', async () => {
-        const card = document.getElementById('shareCard');
-        if (!card || card.style.display === 'none') {
-            alert('Nenhum card gerado ainda!');
-            return;
-        }
-        try {
-            const CARD_EXPORT_SCALE = 3;
-            const canvas = await html2canvas(card, { backgroundColor: null, scale: CARD_EXPORT_SCALE, useCORS: true });
-            const filename = montarNomeArquivo();
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1));
-
-            if (blob) {
-                const file = new File([blob], filename, { type: 'image/png' });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'IGDCC', text: 'Meu card do IGDCC' });
-                    return;
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            const card = document.getElementById('shareCard');
+            if (!card) return;
+            
+            try {
+                const canvas = await html2canvas(card, {
+                    scale: 2,
+                    backgroundColor: null,
+                    useCORS: true,
+                    logging: false
+                });
+                
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await (await fetch(dataUrl)).blob();
+                
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            'image/png': blob
+                        })
+                    ]);
+                    alert('Card copiado para a área de transferência!');
+                } else {
+                    // Fallback para navegadores mais antigos
+                    const input = document.createElement('input');
+                    input.style.position = 'fixed';
+                    input.style.opacity = 0;
+                    input.value = dataUrl;
+                    document.body.appendChild(input);
+                    input.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(input);
+                    alert('Link da imagem copiado para a área de transferência!');
                 }
+            } catch (err) {
+                console.error('Erro ao copiar card:', err);
+                alert('Não foi possível copiar o card. Tente novamente.');
             }
-            if (navigator.share) {
-                const dataUrl = canvas.toDataURL('image/png', 1);
-                await navigator.share({ title: 'IGDCC', text: 'Meu card do IGDCC', url: dataUrl });
+        });
+    }
+    
+    // Handler para baixar o card
+    const downloadBtn = document.getElementById('downloadCardBtn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', async () => {
+            const card = document.getElementById('shareCard');
+            if (!card || card.style.display === 'none') {
+                alert('Nenhum card gerado ainda!');
                 return;
             }
-            // Fallback: abrir em nova aba
-            if (blob) {
-                const url = URL.createObjectURL(blob);
-                window.open(url, '_blank');
-            } else {
-                const dataUrl = canvas.toDataURL('image/png', 1);
-                window.open(dataUrl, '_blank');
+            
+            try {
+                const canvas = await html2canvas(card, {
+                    scale: 3,
+                    backgroundColor: null,
+                    useCORS: true,
+                    logging: false
+                });
+                
+                // Criar link de download
+                const dataUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `igdcc-card-${new Date().toISOString().split('T')[0]}.png`;
+                link.href = dataUrl;
+                
+                // Adicionar ao documento, clicar e remover
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+            } catch (err) {
+                console.error('Erro ao baixar o card:', err);
+                alert('Não foi possível baixar o card. Tente novamente.');
             }
-        } catch (e) {
-            console.error('Falha ao exportar card:', e);
-            alert('Não foi possível gerar a imagem.');
-        }
-    });
+        });
+    }
 
     // Manipulação do formulário
     document.getElementById('calcForm').addEventListener('submit', function (e) {
