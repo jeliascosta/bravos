@@ -213,59 +213,57 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Handler para copiar/baixar somente o card (movido do index.html)
-    const btn = document.getElementById('copyCardBtn');
-    if (btn) {
-        btn.addEventListener('click', async () => {
-            const card = document.getElementById('shareCard');
-            if (!card) return;
-            
-            try {
-                const canvas = await html2canvas(card, {
-                    scale: 2,
-                    backgroundColor: null,
-                    useCORS: true,
-                    logging: false
-                });
-                
-                const dataUrl = canvas.toDataURL('image/png');
-                const blob = await (await fetch(dataUrl)).blob();
-                
-                if (navigator.clipboard && navigator.clipboard.write) {
-                    await navigator.clipboard.write([
-                        new ClipboardItem({
-                            'image/png': blob
-                        })
-                    ]);
-                    alert('Card copiado para a área de transferência!');
-                } else {
-                    // Fallback para navegadores mais antigos
-                    const input = document.createElement('input');
-                    input.style.position = 'fixed';
-                    input.style.opacity = 0;
-                    input.value = dataUrl;
-                    document.body.appendChild(input);
-                    input.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(input);
-                    alert('Link da imagem copiado para a área de transferência!');
+    const btnShareCard = document.getElementById('copyCardBtn');
+    if (!btnShareCard) return;
+    btnShareCard.addEventListener('click', async () => {
+        const card = document.getElementById('shareCard');
+        if (!card || card.style.display === 'none') {
+            alert('Nenhum card gerado ainda!');
+            return;
+        }
+        try {
+            const CARD_EXPORT_SCALE = 3;
+            const canvas = await html2canvas(card, { backgroundColor: null, scale: CARD_EXPORT_SCALE, useCORS: true });
+            const filename = montarNomeArquivo();
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1));
+
+            if (blob) {
+                const file = new File([blob], filename, { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'IGDCC', text: 'Meu card do IGDCC' });
+                    return;
                 }
-            } catch (err) {
-                console.error('Erro ao copiar card:', err);
-                alert('Não foi possível copiar o card. Tente novamente.');
             }
-        });
-    }
-    
-    // Handler para baixar o card
-    const downloadBtn = document.getElementById('downloadCardBtn');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', async () => {
+            if (navigator.share) {
+                const dataUrl = canvas.toDataURL('image/png', 1);
+                await navigator.share({ title: 'IGDCC', text: 'Meu card do IGDCC', url: dataUrl });
+
+                return;
+            }
+
+            // Fallback: abrir em nova aba
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            } else {
+                const dataUrl = canvas.toDataURL('image/png', 1);
+                window.open(dataUrl, '_blank');
+            }
+        } catch (e) {
+            console.error('Falha ao exportar card:', e);
+            alert('Não foi possível gerar a imagem.');
+        }
+    });
+
+    const btnDownloadCard = document.getElementById('downloadCardBtn');
+    if (btnDownloadCard) {
+        btnDownloadCard.addEventListener('click', async () => {
             const card = document.getElementById('shareCard');
             if (!card || card.style.display === 'none') {
                 alert('Nenhum card gerado ainda!');
                 return;
             }
-            
+
             try {
                 const canvas = await html2canvas(card, {
                     scale: 3,
@@ -273,18 +271,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     useCORS: true,
                     logging: false
                 });
-                
+
                 // Criar link de download
                 const dataUrl = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
                 link.download = `igdcc-card-${new Date().toISOString().split('T')[0]}.png`;
                 link.href = dataUrl;
-                
+
                 // Adicionar ao documento, clicar e remover
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
+
             } catch (err) {
                 console.error('Erro ao baixar o card:', err);
                 alert('Não foi possível baixar o card. Tente novamente.');
@@ -1028,7 +1026,7 @@ function configurarCompositor() {
     const rotuloEscala = document.getElementById('composeScaleLabel');
     const borderRadiusControls = document.getElementById('borderRadiusControls');
     const resetBorderRadiusBtn = document.getElementById('resetBorderRadius');
-    
+
     // Valores padrão para o border radius
     const defaultBorderRadius = {
         'top-left': 25,
@@ -1036,35 +1034,35 @@ function configurarCompositor() {
         'bottom-left': 25,
         'bottom-right': 25
     };
-    
+
     // Estado atual do border radius
     let currentBorderRadius = { ...defaultBorderRadius };
-    
+
     // Aplicar border radius ao card
-    function aplicarBorderRadius() {      
+    function aplicarBorderRadius() {
         const { 'top-left': tl, 'top-right': tr, 'bottom-right': br, 'bottom-left': bl } = currentBorderRadius;
         const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
-        
+
         // Store in _compose for later use
         if (_compose) {
             _compose.currentBorderRadius = { ...currentBorderRadius };
         }
-                
+
         // Atualizar também o card clonado se existir
         const cardClonado = document.querySelector('#composeOverlay .share-card');
         if (cardClonado) {
             cardClonado.style.borderRadius = borderRadius;
         }
-        
+
         // Retornar o valor para uso imediato se necessário
         return borderRadius;
     }
-    
+
     // Salvar configurações de borda no localStorage
     function salvarConfiguracoesBorda() {
         localStorage.setItem('borderRadiusConfig', JSON.stringify(currentBorderRadius));
     }
-    
+
     // Carregar configurações de borda do localStorage
     function carregarConfiguracoesBorda() {
         const savedConfig = localStorage.getItem('borderRadiusConfig');
@@ -1087,24 +1085,24 @@ function configurarCompositor() {
         }
         return false;
     }
-    
+
     // Atualizar um canto específico
     function atualizarCanto(corner, value) {
         currentBorderRadius[corner] = parseInt(value, 10);
         aplicarBorderRadius();
         salvarConfiguracoesBorda();
     }
-    
+
     // Resetar todos os cantos para os valores padrão
     function resetarBorderRadius() {
         currentBorderRadius = { ...defaultBorderRadius };
-        
+
         // Atualizar os controles deslizantes
         document.querySelectorAll('.border-radius-control').forEach(input => {
             const corner = input.dataset.corner;
             input.value = currentBorderRadius[corner];
         });
-        
+
         aplicarBorderRadius();
     }
 
@@ -1113,12 +1111,12 @@ function configurarCompositor() {
     const EXPORT_LARGURA_ALVO = 3000;
     const EXPORT_MIME = 'image/png';
     const EXPORT_QUALITY = 0.92;
-    
+
     // Salvar configuração de escala no localStorage
     function salvarConfiguracaoEscala() {
         localStorage.setItem('cardScaleConfig', JSON.stringify(_compose.scale));
     }
-    
+
     // Carregar configuração de escala do localStorage
     function carregarConfiguracaoEscala() {
         const savedScale = localStorage.getItem('cardScaleConfig');
@@ -1139,7 +1137,7 @@ function configurarCompositor() {
     }
 
     if (!entrada || !imagem || !sobreposicao || !botaoExportar || !container || !borderRadiusControls || !resetBorderRadiusBtn) return;
-    
+
     // Configurar eventos para os controles de border radius
     document.querySelectorAll('.border-radius-control').forEach(input => {
         input.addEventListener('input', (e) => {
@@ -1147,20 +1145,20 @@ function configurarCompositor() {
             atualizarCanto(corner, e.target.value);
         });
     });
-    
+
     // Configurar botão de reset
     resetBorderRadiusBtn.addEventListener('click', resetarBorderRadius);
-    
+
     // Carregar configurações iniciais, mas não aplicar ainda
     const temConfigSalva = carregarConfiguracoesBorda();
     if (!temConfigSalva) {
         resetarBorderRadius();
     }
-    
+
     // Aplicar as configurações quando a imagem for carregada
     const aplicarConfigAposCarregamento = () => {
         const borderRadius = aplicarBorderRadius();
-        
+
         // Se houver um MutationObserver, aplicar o border radius quando o card for clonado
         const observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
@@ -1174,14 +1172,14 @@ function configurarCompositor() {
                 }
             }
         });
-        
+
         // Observar mudanças no container do overlay
         observer.observe(sobreposicao, { childList: true, subtree: true });
-        
+
         // Remover o event listener após o primeiro uso
         imagem.removeEventListener('load', aplicarConfigAposCarregamento);
     };
-    
+
     if (imagem.complete) {
         // Se a imagem já estiver carregada, aplicar imediatamente
         aplicarConfigAposCarregamento();
@@ -1189,7 +1187,7 @@ function configurarCompositor() {
         // Caso contrário, aguardar o carregamento
         imagem.addEventListener('load', aplicarConfigAposCarregamento);
     }
-    
+
     // Manter overlay invisível até que a imagem esteja carregada
     try { sobreposicao.style.visibility = 'hidden'; } catch (_) { }
     if (botaoCompartilhar) botaoCompartilhar.disabled = true;
@@ -1269,19 +1267,19 @@ function configurarCompositor() {
                 if (rotuloEscala) rotuloEscala.textContent = `${_compose.scale}%`;
                 salvarConfiguracaoEscala(); // Salvar a escala sempre que for alterada
             };
-            
+
             // Carregar configuração salva ou usar o valor padrão
             const temEscalaSalva = carregarConfiguracaoEscala();
             const valorInicial = temEscalaSalva ? _compose.scale : 100;
-            
+
             entradaEscala.value = valorInicial;
             _compose.scale = valorInicial;
-            
+
             entradaEscala.addEventListener('input', (ev) => applyScale(ev.target.value));
-            
+
             // Aplicar escala inicial
             if (rotuloEscala) rotuloEscala.textContent = `${valorInicial}%`;
-            
+
             // Aplicar transformação inicial se já houver card
             if (_compose.cardEl) {
                 const s = (valorInicial / 100);
@@ -1482,7 +1480,7 @@ function garantirCardOverlay() {
     if (!_compose) return;
     const srcCard = document.getElementById('shareCard');
     if (!srcCard || srcCard.style.display === 'none') return;
-    
+
     // Get current border radius from _compose or use defaults from controls
     const currentBorderRadius = _compose.currentBorderRadius || {
         'top-left': parseInt(document.querySelector('.border-radius-control[data-corner="top-left"]')?.value || '25'),
@@ -1490,7 +1488,7 @@ function garantirCardOverlay() {
         'bottom-left': parseInt(document.querySelector('.border-radius-control[data-corner="bottom-left"]')?.value || '25'),
         'bottom-right': parseInt(document.querySelector('.border-radius-control[data-corner="bottom-right"]')?.value || '25')
     };
-    
+
     // Update _compose with current values
     _compose.currentBorderRadius = { ...currentBorderRadius };
     if (_compose.cardEl && _compose.cardEl.parentElement) {
@@ -1561,7 +1559,7 @@ function garantirCardOverlay() {
         const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
         clone.style.borderRadius = borderRadius;
     }
-    
+
     // aplica escala do slider via transform se existir
     if (_compose.scaleInput) {
         const perc = Number(_compose.scaleInput.value) || 100;
@@ -1795,7 +1793,7 @@ function atualizarCardOverlayDoShareCard() {
         const s2 = (_compose.scale / 100);
         fresh.style.transformOrigin = 'top left';
         fresh.style.transform = `scale(${s2})`;
-        
+
         // Manter o border radius ao atualizar o card
         if (_compose.currentBorderRadius) {
             const { 'top-left': tl, 'top-right': tr, 'bottom-right': br, 'bottom-left': bl } = _compose.currentBorderRadius;
