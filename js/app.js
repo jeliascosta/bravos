@@ -10,7 +10,7 @@
 function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
     if (!distancia || isNaN(distancia) || !notaIGDCC || isNaN(notaIGDCC)) return 0;
 
-    const deltaCorrida = 0.6455; //km
+    const deltaCorrida = 0.6435; //km
     const deltaCaminhada = 0.9655; //km
     let deltaEsforco = deltaCorrida;
 
