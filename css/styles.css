@@ -32,7 +32,7 @@ footer sub {
     max-width: 100%;
     padding: 0 15px;
     box-sizing: border-box;
-    font-size: min(0.9em, 3.5vw);
+    font-size: min(0.8em, 3.5vw);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
