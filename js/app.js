@@ -826,7 +826,8 @@ function gerarGraficos() {
 // Adicione esta função para atualizar o título
 function atualizarTituloGraficos() {
     const idade = inputIdade.value;
-    tituloGraficos.textContent = `Gráficos: Nota vs Tempo (${idade} anos)`;
+    const nivel = document.getElementById('ultimoTaf').value;
+    tituloGraficos.textContent = `Gráficos: Nota vs Tempo (${idade} anos, ${nivel})`;
 }
 
 function onFormInputsChange() {
@@ -895,16 +896,25 @@ function atualizarTituloReferencia() {
     const idade = document.getElementById('idade').value;
     const sexo = document.getElementById('sexo').value;
     const distancia = document.getElementById('distancia').value;
-
+    const nivel = document.getElementById('ultimoTaf').value;
+    
     document.getElementById('idade-ref').textContent = idade;
     document.getElementById('distancia-ref').textContent = distancia;
+    document.getElementById('nivel-ref').textContent = nivel; // Show just the level code (A1, A2, B1, etc.)
     document.getElementById('sexo-ref').textContent = sexo === 'M' ? 'Masc.' : 'Fem.';
+    
+    // Atualiza o título da tabela de referência
+    const tituloReferencia = document.getElementById('titulo-referencia');
+    if (tituloReferencia) {
+        tituloReferencia.textContent = `Tempos de Referência para Nota 100 (${nivel})`;
+    }
 }
 
 // Adicionar event listeners
 document.getElementById('idade').addEventListener('change', onFormInputsChange);
 document.getElementById('sexo').addEventListener('change', onFormInputsChange);
 document.getElementById('distancia').addEventListener('change', onFormInputsChange);
+document.getElementById('ultimoTaf').addEventListener('change', onFormInputsChange);
 
 // Função para atualizar o botão de copiar pontos Hustle
 function atualizarBotaoCopiarHustle() {

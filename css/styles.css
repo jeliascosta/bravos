@@ -7,6 +7,35 @@ body {
     padding: 0;
     background-color: #f4f4f4;
     color: #333;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 40px;
+    box-sizing: border-box;
+}
+
+/* Footer styles */
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #f4f4f4;
+    border-top: 1px solid #ddd;
+}
+
+footer sub {
+    display: block;
+    margin: 0 auto;
+    color: #666;
+    max-width: 100%;
+    padding: 0 15px;
+    box-sizing: border-box;
+    font-size: min(0.9em, 3.5vw);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Estilo para a barra separadora entre distância e TAF */
@@ -321,7 +350,7 @@ tr:hover {
     font-size: 0.9rem;
     opacity: 0.95;
     font-weight: 700;
-    letter-spacing: .04em;
+    letter-spacing: .01em;
     text-align: center;
     /* mantém o bloco centralizado */
     position: relative;
