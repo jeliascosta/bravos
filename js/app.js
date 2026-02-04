@@ -186,6 +186,9 @@ class StravaIntegration {
             return;
         }
 
+        // Limpar status ao abrir modal
+        this.updateStatus('', '');
+
         // Criar modal de seleção
         const modal = this.createActivityModal(runs);
         document.body.appendChild(modal);
@@ -213,23 +216,68 @@ class StravaIntegration {
             border-radius: 8px;
             max-width: 500px;
             width: 90%;
-            max-height: 70vh;
-            overflow-y: auto;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
         `;
 
+        // Header fixo com título
+        const header = document.createElement('div');
+        header.style.cssText = `
+            flex-shrink: 0;
+            margin-bottom: 15px;
+        `;
+        
         const title = document.createElement('h3');
         title.textContent = 'Selecione uma corrida:';
-        content.appendChild(title);
+        title.style.cssText = `
+            margin: 0;
+            color: #333;
+        `;
+        header.appendChild(title);
+
+        // Área de rolagem para as atividades
+        const scrollContainer = document.createElement('div');
+        scrollContainer.style.cssText = `
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 15px;
+        `;
 
         const list = document.createElement('div');
         list.id = 'activityList';
-        content.appendChild(list);
+        scrollContainer.appendChild(list);
 
+        // Footer fixo com botão cancelar
+        const footer = document.createElement('div');
+        footer.style.cssText = `
+            flex-shrink: 0;
+            text-align: center;
+        `;
+        
         const cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Cancelar';
-        cancelBtn.style.marginTop = '10px';
+        cancelBtn.style.cssText = `
+            padding: 8px 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        `;
+        cancelBtn.onmouseover = () => cancelBtn.style.backgroundColor = '#5a6268';
+        cancelBtn.onmouseout = () => cancelBtn.style.backgroundColor = '#6c757d';
         cancelBtn.onclick = () => modal.remove();
-        content.appendChild(cancelBtn);
+        footer.appendChild(cancelBtn);
+
+        // Montar estrutura
+        content.appendChild(header);
+        content.appendChild(scrollContainer);
+        content.appendChild(footer);
 
         modal.className = 'strava-modal';
         modal.appendChild(content);
@@ -239,19 +287,28 @@ class StravaIntegration {
             const date = new Date(activity.start_date).toLocaleDateString('pt-BR');
             const item = document.createElement('div');
             item.style.cssText = `
-                padding: 10px;
-                margin: 5px 0;
+                padding: 12px;
+                margin: 8px 0;
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 cursor: pointer;
-                transition: background 0.2s;
+                transition: all 0.2s ease;
+                background: white;
             `;
             item.innerHTML = `
                 <strong>${activity.name}</strong><br>
-                📅 ${date} | 🛣️ ${(activity.distance / 1000).toFixed(2)}km | 🕒 ${this.formatTime(activity.moving_time)} | ⏱️ ${this.formatPace(activity.distance, activity.moving_time)}
+                <span style="font-size: 0.9em; color: #666;">
+                    📅 ${date} | 🛣️ ${(activity.distance / 1000).toFixed(2)}km | 🕒 ${this.formatTime(activity.moving_time)} | ⏱️ ${this.formatPace(activity.distance, activity.moving_time)}
+                </span>
             `;
-            item.onmouseover = () => item.style.background = '#f5f5f5';
-            item.onmouseout = () => item.style.background = 'white';
+            item.onmouseover = () => {
+                item.style.background = '#f8f9fa';
+                item.style.borderColor = '#007bff';
+            };
+            item.onmouseout = () => {
+                item.style.background = 'white';
+                item.style.borderColor = '#ddd';
+            };
             item.onclick = () => {
                 this.importActivityData(activity);
                 modal.remove();
@@ -259,7 +316,16 @@ class StravaIntegration {
             list.appendChild(item);
         });
 
+        // Adicionar modal ao body
         document.body.appendChild(modal);
+        
+        // Fechar modal ao clicar fora
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        };
+
         return modal;
     }
 
