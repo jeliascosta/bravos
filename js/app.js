@@ -1,5 +1,323 @@
 // app.js
 
+// Configurações da API do Strava
+const STRAVA_CONFIG = {
+    clientId: 'YOUR_CLIENT_ID', // Você precisará registrar um app no Strava
+    redirectUri: window.location.origin + '/strava-callback',
+    scope: 'read,activity:read_all',
+    apiUrl: 'https://www.strava.com/api/v3'
+};
+
+// Funcionalidade de integração com Strava
+class StravaIntegration {
+    constructor() {
+        this.accessToken = localStorage.getItem('strava_access_token');
+        this.refreshToken = localStorage.getItem('strava_refresh_token');
+        this.tokenExpiresAt = localStorage.getItem('strava_token_expires_at');
+        this.init();
+    }
+
+    init() {
+        const stravaBtn = document.getElementById('stravaImportBtn');
+        const stravaStatus = document.getElementById('stravaStatus');
+
+        if (stravaBtn) {
+            stravaBtn.addEventListener('click', () => this.handleStravaImport());
+        }
+
+        // Verificar se há token na URL (callback do OAuth)
+        this.handleOAuthCallback();
+    }
+
+    handleOAuthCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+
+        if (error) {
+            this.updateStatus('Erro na autenticação com Strava: ' + error, 'error');
+            return;
+        }
+
+        if (code) {
+            this.exchangeCodeForToken(code);
+            // Limpar URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+
+    async exchangeCodeForToken(code) {
+        try {
+            this.updateStatus('Autenticando com Strava...', 'loading');
+
+            const response = await fetch('https://www.strava.com/oauth/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    client_id: STRAVA_CONFIG.clientId,
+                    client_secret: 'YOUR_CLIENT_SECRET', // Você precisará configurar
+                    code: code,
+                    grant_type: 'authorization_code'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.access_token) {
+                this.accessToken = data.access_token;
+                this.refreshToken = data.refresh_token;
+                this.tokenExpiresAt = Date.now() + (data.expires_in * 1000);
+
+                localStorage.setItem('strava_access_token', this.accessToken);
+                localStorage.setItem('strava_refresh_token', this.refreshToken);
+                localStorage.setItem('strava_token_expires_at', this.tokenExpiresAt);
+
+                this.updateStatus('Autenticado com sucesso! Buscando atividades...', 'success');
+                setTimeout(() => this.fetchRecentActivities(), 1000);
+            } else {
+                throw new Error(data.error || 'Erro ao obter token');
+            }
+        } catch (error) {
+            this.updateStatus('Erro na autenticação: ' + error.message, 'error');
+        }
+    }
+
+    async handleStravaImport() {
+        if (!this.accessToken || this.isTokenExpired()) {
+            this.authenticate();
+            return;
+        }
+
+        await this.fetchRecentActivities();
+    }
+
+    authenticate() {
+        const authUrl = `https://www.strava.com/oauth/authorize?` +
+            `client_id=${STRAVA_CONFIG.clientId}&` +
+            `redirect_uri=${encodeURIComponent(STRAVA_CONFIG.redirectUri)}&` +
+            `response_type=code&` +
+            `scope=${encodeURIComponent(STRAVA_CONFIG.scope)}`;
+
+        window.location.href = authUrl;
+    }
+
+    isTokenExpired() {
+        return !this.tokenExpiresAt || Date.now() >= parseInt(this.tokenExpiresAt);
+    }
+
+    async refreshAccessToken() {
+        if (!this.refreshToken) {
+            this.authenticate();
+            return;
+        }
+
+        try {
+            const response = await fetch('https://www.strava.com/oauth/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    client_id: STRAVA_CONFIG.clientId,
+                    client_secret: 'YOUR_CLIENT_SECRET',
+                    grant_type: 'refresh_token',
+                    refresh_token: this.refreshToken
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.access_token) {
+                this.accessToken = data.access_token;
+                this.tokenExpiresAt = Date.now() + (data.expires_in * 1000);
+
+                localStorage.setItem('strava_access_token', this.accessToken);
+                localStorage.setItem('strava_token_expires_at', this.tokenExpiresAt);
+
+                if (data.refresh_token) {
+                    this.refreshToken = data.refresh_token;
+                    localStorage.setItem('strava_refresh_token', this.refreshToken);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao refresh token:', error);
+            this.authenticate();
+        }
+    }
+
+    async fetchRecentActivities() {
+        if (!this.accessToken) {
+            this.authenticate();
+            return;
+        }
+
+        if (this.isTokenExpired()) {
+            await this.refreshAccessToken();
+        }
+
+        try {
+            this.updateStatus('Buscando atividades recentes...', 'loading');
+
+            const response = await fetch(`${STRAVA_CONFIG.apiUrl}/athlete/activities?per_page=10`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao buscar atividades');
+            }
+
+            const activities = await response.json();
+            this.displayActivitySelector(activities);
+        } catch (error) {
+            this.updateStatus('Erro ao buscar atividades: ' + error.message, 'error');
+        }
+    }
+
+    displayActivitySelector(activities) {
+        // Filtrar apenas corridas
+        const runs = activities.filter(activity => activity.type === 'Run');
+        
+        if (runs.length === 0) {
+            this.updateStatus('Nenhuma corrida encontrada nas atividades recentes', 'error');
+            return;
+        }
+
+        // Criar modal de seleção
+        const modal = this.createActivityModal(runs);
+        document.body.appendChild(modal);
+    }
+
+    createActivityModal(activities) {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+        `;
+
+        content.innerHTML = `
+            <h3>Selecione uma corrida:</h3>
+            <div id="activityList"></div>
+            <button onclick="this.closest('.strava-modal').remove()" style="margin-top: 10px;">Cancelar</button>
+        `;
+
+        modal.className = 'strava-modal';
+        modal.appendChild(content);
+
+        const list = document.getElementById('activityList');
+        activities.forEach(activity => {
+            const date = new Date(activity.start_date).toLocaleDateString('pt-BR');
+            const item = document.createElement('div');
+            item.style.cssText = `
+                padding: 10px;
+                margin: 5px 0;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.2s;
+            `;
+            item.innerHTML = `
+                <strong>${activity.name}</strong><br>
+                📅 ${date} | 🛣️ ${activity.distance.toFixed(2)}km | 🕒 ${this.formatTime(activity.moving_time)} | ⏱️ ${this.formatPace(activity.distance, activity.moving_time)}
+            `;
+            item.onmouseover = () => item.style.background = '#f5f5f5';
+            item.onmouseout = () => item.style.background = 'white';
+            item.onclick = () => {
+                this.importActivityData(activity);
+                modal.remove();
+            };
+            list.appendChild(item);
+        });
+
+        return modal;
+    }
+
+    importActivityData(activity) {
+        try {
+            // Preencher formulário com dados da atividade
+            document.getElementById('distancia').value = (activity.distance / 1000).toFixed(2);
+            
+            // Converter tempo total para formato mm:ss
+            const tempoSegundos = activity.moving_time;
+            const horas = Math.floor(tempoSegundos / 3600);
+            const minutos = Math.floor((tempoSegundos % 3600) / 60);
+            const segundos = tempoSegundos % 60;
+            
+            let tempoFormatado;
+            if (horas > 0) {
+                tempoFormatado = `${horas}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            } else {
+                tempoFormatado = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+            }
+            
+            document.getElementById('tempo').value = tempoFormatado;
+            
+            // Mudar para tipo de entrada "tempo"
+            document.querySelector('input[name="tipoEntrada"][value="tempo"]').checked = true;
+            document.getElementById('tempoInput').style.display = 'block';
+            document.getElementById('paceInput').style.display = 'none';
+            
+            this.updateStatus(`Dados importados: ${activity.name}`, 'success');
+            
+            // Salvar no localStorage
+            localStorage.setItem('igdcc_distancia', document.getElementById('distancia').value);
+            localStorage.setItem('igdcc_tempo', tempoFormatado);
+            localStorage.setItem('igdcc_tipoEntrada', 'tempo');
+            
+        } catch (error) {
+            this.updateStatus('Erro ao importar dados: ' + error.message, 'error');
+        }
+    }
+
+    formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    formatPace(distanceMeters, timeSeconds) {
+        const paceSeconds = timeSeconds / (distanceMeters / 1000);
+        const minutes = Math.floor(paceSeconds / 60);
+        const seconds = Math.floor(paceSeconds % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}/km`;
+    }
+
+    updateStatus(message, type = '') {
+        const statusEl = document.getElementById('stravaStatus');
+        if (statusEl) {
+            statusEl.textContent = message;
+            statusEl.className = type;
+        }
+    }
+}
+
 
 /**
  * Calcula os pontos Hustle com base na distância percorrida e nota IGDCC
@@ -109,6 +427,9 @@ function obterDistanciaFormatada() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Inicializar integração com Strava
+    window.stravaIntegration = new StravaIntegration();
+    
     // Controle de exibição dos campos de entrada
     const botoesRadio = document.querySelectorAll('input[name="tipoEntrada"]');
     const entradaTempo = document.getElementById('tempoInput');

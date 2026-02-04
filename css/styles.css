@@ -643,6 +643,57 @@ input:checked+.slider:before {
     font-weight: 800;
 }
 
+/* Botão de importação do Strava */
+.strava-import-btn {
+    width: auto;
+    padding: 12px 24px;
+    background-color: #fc4c02;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.strava-import-btn:hover {
+    background-color: #e63f00;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(252, 76, 2, 0.3);
+}
+
+.strava-import-btn:active {
+    transform: translateY(0);
+}
+
+.strava-import-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#stravaStatus {
+    min-height: 20px;
+    transition: color 0.3s ease;
+}
+
+#stravaStatus.error {
+    color: #dc3545;
+}
+
+#stravaStatus.success {
+    color: #28a745;
+}
+
+#stravaStatus.loading {
+    color: #007bff;
+}
+
 /* responsividade: empilha no mobile
 @media (max-width:420px){
     .share-card{ width: 92%; padding: 14px; border-radius: 16px; }
