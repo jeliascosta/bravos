@@ -2,13 +2,13 @@
 
 
 /**
- * Calcula os pontos Hustle com base na distância percorrida e nota IGDCC
+ * Calcula os pontos Hustle com base na distância percorrida e nota BRAVØS
  * @param {number} distancia - Distância em quilômetros
- * @param {number} notaIGDCC - Nota no IGDCC (0-100)
+ * @param {number} notaBRAVØS - Nota no BRAVØS (0-100)
  * @returns {number} - Pontos Hustle escalonados pela nota
  */
-function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
-    if (!distancia || isNaN(distancia) || !notaIGDCC || isNaN(notaIGDCC)) return 0;
+function calcularPontosHustle(distancia, notaBRAVØS, idade, distanciaAtual) {
+    if (!distancia || isNaN(distancia) || !notaBRAVØS || isNaN(notaBRAVØS)) return 0;
 
     const deltaCorrida = 0.6435; //km
     const deltaCaminhada = 0.9655; //km
@@ -26,10 +26,10 @@ function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
     const notaBaseF = calcularNotaPorPace("7:00", 25, 'F', distanciaAtual, "A1");
     let notaBase = notaBaseF;
 
-    // if (notaIGDCC < notaBase)
+    // if (notaBRAVØS < notaBase)
     //     deltaEsforco = deltaCaminhada;
 
-    const fatorEscala = notaIGDCC / notaBase;
+    const fatorEscala = notaBRAVØS / notaBase;
     console.log("Nota base para pts hustle:", notaBase, "fator escala:", fatorEscala)
 
     return (distancia / deltaEsforco) * (fatorEscala > 1 ? fatorEscala : 1);
@@ -46,17 +46,17 @@ function atualizarEmojisPorSexo(sexo) {
         labelSexo.innerHTML = sexo === 'M' ? '👨 Sexo:' : '👩 Sexo:';
     }
 
-    // Atualiza emoji no título IGDCC
-    const tituloIGDCC = document.querySelector('h1');
-    if (tituloIGDCC) {
+    // Atualiza emoji no título BRAVØS
+    const tituloBRAVØS = document.querySelector('h1');
+    if (tituloBRAVØS) {
         const emojiCorredor = sexo === 'M' ? '🏃🏻‍♂️' : '🏃🏻‍♀️';
         // Substitui o emoji do corredor mantendo o resto do conteúdo
-        const textoAtual = tituloIGDCC.innerHTML;
+        const textoAtual = tituloBRAVØS.innerHTML;
         // Substitui tanto o emoji masculino quanto feminino do corredor
         const textoNovo = textoAtual
             .replace(/🏃🏻‍♀️/g, emojiCorredor)
             .replace(/🏃🏻‍♂️/g, emojiCorredor);
-        tituloIGDCC.innerHTML = textoNovo;
+        tituloBRAVØS.innerHTML = textoNovo;
     }
 }
 
@@ -119,25 +119,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const iEl = document.getElementById('idade');
     const dEl = document.getElementById('distancia');
     const sEl = document.getElementById('sexo');
-    const vT = localStorage.getItem('igdcc_tempo');
-    const vP = localStorage.getItem('igdcc_pace');
-    const vI = localStorage.getItem('igdcc_idade');
-    const vD = localStorage.getItem('igdcc_distancia');
-    const vS = localStorage.getItem('igdcc_sexo');
-    const vUltimoTaf = localStorage.getItem('igdcc_ultimoTaf');
+    const vT = localStorage.getItem('bravos_tempo');
+    const vP = localStorage.getItem('bravos_pace');
+    const vI = localStorage.getItem('bravos_idade');
+    const vD = localStorage.getItem('bravos_distancia');
+    const vS = localStorage.getItem('bravos_sexo');
+    const vUltimoTaf = localStorage.getItem('bravos_ultimoTaf');
     if (tEl && vT != null) tEl.value = vT;
     if (pEl && vP != null) pEl.value = vP;
     if (iEl && vI != null) iEl.value = vI;
     if (dEl && vD != null) dEl.value = vD;
     if (sEl && vS != null) sEl.value = vS;
     if (document.getElementById('ultimoTaf') && vUltimoTaf != null) document.getElementById('ultimoTaf').value = vUltimoTaf;
-    if (tEl) tEl.addEventListener('input', () => localStorage.setItem('igdcc_tempo', tEl.value || ''));
-    if (pEl) pEl.addEventListener('input', () => localStorage.setItem('igdcc_pace', pEl.value || ''));
-    if (iEl) iEl.addEventListener('change', () => localStorage.setItem('igdcc_idade', iEl.value || ''));
-    if (dEl) dEl.addEventListener('change', () => localStorage.setItem('igdcc_distancia', dEl.value || ''));
+    if (tEl) tEl.addEventListener('input', () => localStorage.setItem('bravos_tempo', tEl.value || ''));
+    if (pEl) pEl.addEventListener('input', () => localStorage.setItem('bravos_pace', pEl.value || ''));
+    if (iEl) iEl.addEventListener('change', () => localStorage.setItem('bravos_idade', iEl.value || ''));
+    if (dEl) dEl.addEventListener('change', () => localStorage.setItem('bravos_distancia', dEl.value || ''));
     if (sEl) {
         sEl.addEventListener('change', () => {
-            localStorage.setItem('igdcc_sexo', sEl.value || '');
+            localStorage.setItem('bravos_sexo', sEl.value || '');
             atualizarEmojisPorSexo(sEl.value);
         });
         // Atualizar emojis na inicialização também
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ultimoTafEl) {
         ultimoTafEl.addEventListener('change', () => {
             const valorTaf = ultimoTafEl.value || '';
-            localStorage.setItem('igdcc_ultimoTaf', valorTaf);
+            localStorage.setItem('bravos_ultimoTaf', valorTaf);
 
             // Atualiza o card
             if (typeof atualizarCardOverlayDoShareCard === 'function') {
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // restaurar tipoEntrada salvo
-    const tipoSalvo = localStorage.getItem('igdcc_tipoEntrada');
+    const tipoSalvo = localStorage.getItem('bravos_tipoEntrada');
     if (tipoSalvo === 'tempo' || tipoSalvo === 'pace') {
         const rb = document.querySelector(`input[name="tipoEntrada"][value="${tipoSalvo}"]`);
         if (rb) rb.checked = true;
@@ -201,13 +201,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 entradaPace.style.display = 'none';
                 document.getElementById('tempo').required = true;
                 document.getElementById('pace').required = false;
-                localStorage.setItem('igdcc_tipoEntrada', 'tempo');
+                localStorage.setItem('bravos_tipoEntrada', 'tempo');
             } else {
                 entradaTempo.style.display = 'none';
                 entradaPace.style.display = 'block';
                 document.getElementById('tempo').required = false;
                 document.getElementById('pace').required = true;
-                localStorage.setItem('igdcc_tipoEntrada', 'pace');
+                localStorage.setItem('bravos_tipoEntrada', 'pace');
             }
         });
     });
@@ -230,13 +230,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (blob) {
                 const file = new File([blob], filename, { type: 'image/png' });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ files: [file], title: 'IGDCC', text: 'Meu card do IGDCC' });
+                    await navigator.share({ files: [file], title: 'BRAVØS', text: 'Meu card do BRAVØS' });
                     return;
                 }
             }
             if (navigator.share) {
                 const dataUrl = canvas.toDataURL('image/png', 1);
-                await navigator.share({ title: 'IGDCC', text: 'Meu card do IGDCC', url: dataUrl });
+                await navigator.share({ title: 'BRAVØS', text: 'Meu card do BRAVØS', url: dataUrl });
 
                 return;
             }
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Criar link de download
                 const dataUrl = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
-                link.download = `igdcc-card-${new Date().toISOString().split('T')[0]}.png`;
+                link.download = `bravos-card-${new Date().toISOString().split('T')[0]}.png`;
                 link.href = dataUrl;
 
                 // Adicionar ao documento, clicar e remover
@@ -687,7 +687,7 @@ function montarNomeArquivo() {
     const dd = String(now.getDate()).padStart(2, '0');
     const mm = String(now.getMonth() + 1).padStart(2, '0');
     const yy = String(now.getFullYear()).slice(-2);
-    return `igdcc-${notaStr}-${distStr}_${dd}-${mm}-${yy}.png`;
+    return `bravos-${notaStr}-${distStr}_${dd}-${mm}-${yy}.png`;
 }
 
 // Gera dados (array de {x: tempoSegundos, y: nota}) para uma distância e sexo
@@ -1450,8 +1450,8 @@ function configurarCompositor() {
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
-                        title: 'IGDCC',
-                        text: 'Meu print do IGDCC'
+                        title: 'BRAVØS',
+                        text: 'Meu print do BRAVØS'
                     });
                     return;
                 }
@@ -1459,8 +1459,8 @@ function configurarCompositor() {
                     // Fallback: compartilhar um data URL (alguns ambientes aceitam)
                     const dataUrl = canvas.toDataURL(EXPORT_MIME, EXPORT_QUALITY);
                     await navigator.share({
-                        title: 'IGDCC',
-                        text: 'Meu print do IGDCC',
+                        title: 'BRAVØS',
+                        text: 'Meu print do BRAVØS',
                         url: dataUrl
                     });
                     return;
