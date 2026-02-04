@@ -2,8 +2,8 @@
 
 // Configurações da API do Strava
 const STRAVA_CONFIG = {
-    clientId: 'YOUR_CLIENT_ID', // Você precisará registrar um app no Strava
-    redirectUri: window.location.origin + '/strava-callback',
+    clientId: '70009', // Você precisará registrar um app no Strava
+    redirectUri: window.location.origin + window.location.pathname, // Usar a página atual como callback
     scope: 'read,activity:read_all',
     apiUrl: 'https://www.strava.com/api/v3'
 };
@@ -57,7 +57,7 @@ class StravaIntegration {
                 },
                 body: JSON.stringify({
                     client_id: STRAVA_CONFIG.clientId,
-                    client_secret: 'YOUR_CLIENT_SECRET', // Você precisará configurar
+                    client_secret: '6f68aafcc1677901871f9d4af210c0e005c9606e', // Você precisará configurar
                     code: code,
                     grant_type: 'authorization_code'
                 })
@@ -121,7 +121,7 @@ class StravaIntegration {
                 },
                 body: JSON.stringify({
                     client_id: STRAVA_CONFIG.clientId,
-                    client_secret: 'YOUR_CLIENT_SECRET',
+                    client_secret: '6f68aafcc1677901871f9d4af210c0e005c9606e',
                     grant_type: 'refresh_token',
                     refresh_token: this.refreshToken
                 })
@@ -217,16 +217,24 @@ class StravaIntegration {
             overflow-y: auto;
         `;
 
-        content.innerHTML = `
-            <h3>Selecione uma corrida:</h3>
-            <div id="activityList"></div>
-            <button onclick="this.closest('.strava-modal').remove()" style="margin-top: 10px;">Cancelar</button>
-        `;
+        const title = document.createElement('h3');
+        title.textContent = 'Selecione uma corrida:';
+        content.appendChild(title);
+
+        const list = document.createElement('div');
+        list.id = 'activityList';
+        content.appendChild(list);
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancelar';
+        cancelBtn.style.marginTop = '10px';
+        cancelBtn.onclick = () => modal.remove();
+        content.appendChild(cancelBtn);
 
         modal.className = 'strava-modal';
         modal.appendChild(content);
 
-        const list = document.getElementById('activityList');
+        // Adicionar atividades à lista
         activities.forEach(activity => {
             const date = new Date(activity.start_date).toLocaleDateString('pt-BR');
             const item = document.createElement('div');
@@ -240,7 +248,7 @@ class StravaIntegration {
             `;
             item.innerHTML = `
                 <strong>${activity.name}</strong><br>
-                📅 ${date} | 🛣️ ${activity.distance.toFixed(2)}km | 🕒 ${this.formatTime(activity.moving_time)} | ⏱️ ${this.formatPace(activity.distance, activity.moving_time)}
+                📅 ${date} | 🛣️ ${(activity.distance / 1000).toFixed(2)}km | 🕒 ${this.formatTime(activity.moving_time)} | ⏱️ ${this.formatPace(activity.distance, activity.moving_time)}
             `;
             item.onmouseover = () => item.style.background = '#f5f5f5';
             item.onmouseout = () => item.style.background = 'white';
@@ -251,6 +259,7 @@ class StravaIntegration {
             list.appendChild(item);
         });
 
+        document.body.appendChild(modal);
         return modal;
     }
 
