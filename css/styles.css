@@ -91,7 +91,7 @@ footer sub {
     margin: 20px auto;
     margin-top: 0px;
     padding: 20px;
-    background: white;
+    background: #fbfbfb;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -502,7 +502,7 @@ input:checked+.slider:before {
     white-space: pre;
 }
 
-/* pequeno label de revisão ao lado de "Meu IGDCC" */
+/* pequeno label de revisão ao lado de "Meu BRAVØS" */
 .share-top .rev {
     font-size: 0.65em;
     margin-left: 6px;
