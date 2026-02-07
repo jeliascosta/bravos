@@ -405,8 +405,15 @@ class StravaIntegration {
     updateStatus(message, type = '') {
         const statusEl = document.getElementById('stravaStatus');
         if (statusEl) {
-            statusEl.textContent = message;
-            statusEl.className = type;
+            if (message && message.trim() !== '') {
+                statusEl.textContent = message;
+                statusEl.style.display = 'block';
+                statusEl.className = type;
+            } else {
+                statusEl.style.display = 'none';
+                statusEl.textContent = '';
+                statusEl.className = '';
+            }
         }
     }
 }
@@ -561,6 +568,14 @@ function atualizarVisibilidadeCampos() {
 document.addEventListener('DOMContentLoaded', function () {
     // Inicializar integração com Strava
     window.stravaIntegration = new StravaIntegration();
+    
+    // Limpar status inicial
+    const statusEl = document.getElementById('stravaStatus');
+    if (statusEl) {
+        statusEl.style.display = 'none';
+        statusEl.textContent = '';
+        statusEl.className = '';
+    }
     
     // Controle de exibição dos campos de entrada
     const botoesRadio = document.querySelectorAll('input[name="tipoEntrada"]');
