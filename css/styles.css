@@ -49,6 +49,7 @@ footer sub {
     text-overflow: ellipsis;
     padding: 0 5px;
     line-height: 1.2;
+    margin-top: 30px;
 }
 
 /* Estilo para labels dos radio buttons */
@@ -61,24 +62,6 @@ footer sub {
 
 .radio-group label[for="tipoPace"] {
     white-space: nowrap;
-}
-
-/* Estilo para o botão de importação do Strava */
-.strava-import-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #fc4c02;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 15px;
-}
-
-.strava-import-btn:hover {
-    background-color: #e63901;
 }
 
 /* Estilo para a barra separadora entre distância e TAF */
@@ -688,7 +671,7 @@ input:checked+.slider:before {
 
 /* Botão de importação do Strava */
 .strava-import-btn {
-    width: auto;
+    width: 100%;
     padding: 12px 24px;
     background-color: #fc4c02;
     color: white;
@@ -700,7 +683,9 @@ input:checked+.slider:before {
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    margin-bottom: 10px;
 }
 
 .strava-import-btn:hover {
