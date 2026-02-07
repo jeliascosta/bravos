@@ -1148,7 +1148,7 @@ function segundosParaMMSS(sec) {
 function montarNomeArquivo() {
     const distEl = document.getElementById('scoreDistancia');
     let distStr = (distEl && distEl.textContent) ? distEl.textContent.trim() : '';
-    distStr = distStr.replace(/\s+/g, '');
+    distStr = distStr.replace(/\s+/g, '').replace(/\|/g, '_');
     const notaEl = document.getElementById('scoreBig');
     let notaStr = (notaEl && notaEl.textContent) ? notaEl.textContent.trim() : '';
     notaStr = notaStr.replace(/\s+/g, '');
