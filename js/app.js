@@ -823,11 +823,25 @@ function gerarGraficos() {
     }
 }
 
+// Função para converter código do nível para nome completo
+function codigoParaNomeNivel(codigo) {
+    const nomes = {
+        'A1': 'ALFA 1',
+        'A2': 'ALFA 2',
+        'B1': 'BRAVO 1',
+        'B2': 'BRAVO 2',
+        'L1': 'LIGHT 1',
+        'L2': 'LIGHT 2'
+    };
+    return nomes[codigo] || codigo;
+}
+
 // Adicione esta função para atualizar o título
 function atualizarTituloGraficos() {
     const idade = inputIdade.value;
     const nivel = document.getElementById('ultimoTaf').value;
-    tituloGraficos.textContent = `Gráficos: Nota vs Tempo (${idade} anos, ${nivel})`;
+    const nomeNivel = codigoParaNomeNivel(nivel);
+    tituloGraficos.textContent = `Gráficos: Nota vs Tempo, ${nomeNivel}`;
 }
 
 function onFormInputsChange() {
@@ -900,13 +914,14 @@ function atualizarTituloReferencia() {
     
     document.getElementById('idade-ref').textContent = idade;
     document.getElementById('distancia-ref').textContent = distancia;
-    document.getElementById('nivel-ref').textContent = nivel; // Show just the level code (A1, A2, B1, etc.)
+    const nomeNivel = codigoParaNomeNivel(nivel);
+    document.getElementById('nivel-ref').textContent = nomeNivel; // Show the full level name (ALFA 1, LIGHT 2, etc.)
     document.getElementById('sexo-ref').textContent = sexo === 'M' ? 'Masc.' : 'Fem.';
     
     // Atualiza o título da tabela de referência
     const tituloReferencia = document.getElementById('titulo-referencia');
     if (tituloReferencia) {
-        tituloReferencia.textContent = `Tempos de Referência para Nota 100 (${nivel})`;
+        tituloReferencia.textContent = `Tempos de Referência para Nota 100 (${nomeNivel})`;
     }
 }
 
