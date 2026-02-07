@@ -374,10 +374,10 @@ class StravaIntegration {
             this.updateStatus(`Atividade importada: ${activity.name} (${dataFormatada})`, 'success');
             
             // Salvar no localStorage
-            localStorage.setItem('igdcc_distancia', document.getElementById('distancia').value);
-            localStorage.setItem('igdcc_tempo', tempoFormatado);
-            localStorage.setItem('igdcc_pace', paceFormatado);
-            localStorage.setItem('igdcc_tipoEntrada', 'tempo');
+            localStorage.setItem('bravos_distancia', document.getElementById('distancia').value);
+            localStorage.setItem('bravos_tempo', tempoFormatado);
+            localStorage.setItem('bravos_pace', paceFormatado);
+            localStorage.setItem('bravos_tipoEntrada', 'tempo');
             
         } catch (error) {
             this.updateStatus('Erro ao importar dados: ' + error.message, 'error');
@@ -546,14 +546,14 @@ function atualizarVisibilidadeCampos() {
         stravaContainer.style.display = 'none';
         document.getElementById('tempo').required = true;
         document.getElementById('pace').required = false;
-        localStorage.setItem('igdcc_tipoEntrada', 'tempo');
+        localStorage.setItem('bravos_tipoEntrada', 'tempo');
     } else if (tipoSelecionado === 'pace') {
         entradaTempo.style.display = 'none';
         entradaPace.style.display = 'block';
         stravaContainer.style.display = 'none';
         document.getElementById('tempo').required = false;
         document.getElementById('pace').required = true;
-        localStorage.setItem('igdcc_tipoEntrada', 'pace');
+        localStorage.setItem('bravos_tipoEntrada', 'pace');
     } else if (tipoSelecionado === 'importar') {
         console.log("ENTROU AQUI")
         entradaTempo.style.display = 'none';
@@ -561,7 +561,7 @@ function atualizarVisibilidadeCampos() {
         stravaContainer.style.display = 'block';
         document.getElementById('tempo').required = false;
         document.getElementById('pace').required = false;
-        localStorage.setItem('igdcc_tipoEntrada', 'importar');
+        localStorage.setItem('bravos_tipoEntrada', 'importar');
     }
 }
 
@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // restaurar tipoEntrada salvo
-    const tipoSalvo = localStorage.getItem('igdcc_tipoEntrada');
+    const tipoSalvo = localStorage.getItem('bravos_tipoEntrada');
     if (tipoSalvo === 'tempo' || tipoSalvo === 'pace' || tipoSalvo === 'importar') {
         const rb = document.querySelector(`input[name="tipoEntrada"][value="${tipoSalvo}"]`);
         if (rb) rb.checked = true;
@@ -681,45 +681,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-<<<<<<< HEAD
-    // restaurar tipoEntrada salvo
-    const tipoSalvo = localStorage.getItem('bravos_tipoEntrada');
-    if (tipoSalvo === 'tempo' || tipoSalvo === 'pace') {
-        const rb = document.querySelector(`input[name="tipoEntrada"][value="${tipoSalvo}"]`);
-        if (rb) rb.checked = true;
-        if (tipoSalvo === 'tempo') {
-            entradaTempo.style.display = 'block';
-            entradaPace.style.display = 'none';
-            document.getElementById('tempo').required = true;
-            document.getElementById('pace').required = false;
-        } else {
-            entradaTempo.style.display = 'none';
-            entradaPace.style.display = 'block';
-            document.getElementById('tempo').required = false;
-            document.getElementById('pace').required = true;
-        }
-    }
-
-    botoesRadio.forEach(radio => {
-        radio.addEventListener('change', function () {
-            if (this.value === 'tempo') {
-                entradaTempo.style.display = 'block';
-                entradaPace.style.display = 'none';
-                document.getElementById('tempo').required = true;
-                document.getElementById('pace').required = false;
-                localStorage.setItem('bravos_tipoEntrada', 'tempo');
-            } else {
-                entradaTempo.style.display = 'none';
-                entradaPace.style.display = 'block';
-                document.getElementById('tempo').required = false;
-                document.getElementById('pace').required = true;
-                localStorage.setItem('bravos_tipoEntrada', 'pace');
-            }
-        });
-    });
-
-=======
->>>>>>> strava
     // Handler para copiar/baixar somente o card (movido do index.html)
     const btnShareCard = document.getElementById('copyCardBtn');
     if (!btnShareCard) return;
