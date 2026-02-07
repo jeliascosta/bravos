@@ -28,14 +28,17 @@
 <body>
     <div class="container">
         <h1 style="margin-top: 5px;">ᯓ🏃🏻‍♀️📊 BRAVØS <sub class="adicione" title="adicione">REV3</sub></h1>
+        <p class="instrucao-frase">📈 Insira os dados da sua corrida e desbrave seu card!</p>
         <form id="calcForm">
             <div class="input-group">
                 <!-- <label>Tipo de entrada:</label> -->
                 <div class="radio-group">
                     <input type="radio" id="tipoTempo" name="tipoEntrada" value="tempo" checked>
-                    <label for="tipoTempo" style="margin-left: -18px;">🕒 Tempo total</label>
+                    <label for="tipoTempo" style="margin-left: -10px;">🕒 Tempo total</label>
                     <input type="radio" id="tipoPace" name="tipoEntrada" value="pace">
-                    <label for="tipoPace" style="margin-left: -18px;">⏱️ Pace (min/km)</label>
+                    <label for="tipoPace" style="margin-left: -10px;">⏱️ Pace (min/km)</label>
+                    <input type="radio" id="tipoImportar" name="tipoEntrada" value="importar">
+                    <label for="tipoImportar" style="margin-left: -10px;">➡️</label>
                 </div>
             </div>
 
@@ -48,6 +51,14 @@
                 <label for="pace">⏱️ (mm:ss):</label>
                 <input type="text" id="pace" value="04:59">
             </div>
+
+            <!-- Botão de importação do Strava -->
+            <div id="stravaImportContainer" style="display: none; margin: 0px 0px 0px 0px; text-align: center;">
+            <button type="button" id="stravaImportBtn" class="strava-import-btn" title="Importar dados do Strava">
+                ➡️ Importar do STRAVA
+            </button>
+            <div id="stravaStatus" style="margin: 0px 0px 10px 0px; font-size: 0.9em; color: #666;"></div>
+        </div>
 
             <div style="display: flex; gap: 8px; align-items: flex-end;">
                 <div style="flex: 1;">
@@ -100,15 +111,7 @@
                 uma
                 sugestão de como ajustar a equivalência, entre em contato com o desenvolvedor!</div>
 
-                        <!-- Botão de importação do Strava -->
-        <div style="margin: 0px 0px 0px 0px; text-align: center;">
-            <button type="button" id="stravaImportBtn" class="strava-import-btn" title="Importar dados do Strava">
-                ➡️ Importar do STRAVA
-            </button>
-            <div id="stravaStatus" style="margin-top: 10px; font-size: 0.9em; color: #666;"></div>
-        </div>
-
-            <button type="submit">⚡Desbrava !</button>
+                        <button type="submit">⚡Desbrava !</button>
         </form>
 
         <div id="resultado">

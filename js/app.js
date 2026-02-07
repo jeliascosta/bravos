@@ -347,18 +347,36 @@ class StravaIntegration {
                 tempoFormatado = `${minutos}:${segundos.toString().padStart(2, '0')}`;
             }
             
+            // Preencher campo de tempo
             document.getElementById('tempo').value = tempoFormatado;
+            
+            // Calcular e preencher campo de pace
+            const distanciaKm = activity.distance / 1000;
+            const paceSegundosPorKm = tempoSegundos / distanciaKm;
+            const paceMinutos = Math.floor(paceSegundosPorKm / 60);
+            const paceSegundos = Math.floor(paceSegundosPorKm % 60);
+            const paceFormatado = `${paceMinutos}:${paceSegundos.toString().padStart(2, '0')}`;
+            
+            document.getElementById('pace').value = paceFormatado;
             
             // Mudar para tipo de entrada "tempo"
             document.querySelector('input[name="tipoEntrada"][value="tempo"]').checked = true;
-            document.getElementById('tempoInput').style.display = 'block';
-            document.getElementById('paceInput').style.display = 'none';
+            atualizarVisibilidadeCampos();
             
-            this.updateStatus(`Dados importados: ${activity.name}`, 'success');
+            // Formatar data da atividade
+            const dataAtividade = new Date(activity.start_date_local);
+            const dataFormatada = dataAtividade.toLocaleDateString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+            
+            this.updateStatus(`Atividade importada: ${activity.name} (${dataFormatada})`, 'success');
             
             // Salvar no localStorage
             localStorage.setItem('igdcc_distancia', document.getElementById('distancia').value);
             localStorage.setItem('igdcc_tempo', tempoFormatado);
+            localStorage.setItem('igdcc_pace', paceFormatado);
             localStorage.setItem('igdcc_tipoEntrada', 'tempo');
             
         } catch (error) {
@@ -431,7 +449,7 @@ function calcularPontosHustle(distancia, notaIGDCC, idade, distanciaAtual) {
 const tituloGraficos = document.getElementById('titulo-graficos');
 const inputIdade = document.getElementById('idade');
 
-// Função para atualizar emojis baseado no sexo selecionado
+// Função para atualizar emojis e texto baseado no sexo selecionado
 function atualizarEmojisPorSexo(sexo) {
     // Atualiza emoji no label do campo sexo
     const labelSexo = document.querySelector('label[for="sexo"]');
@@ -450,6 +468,13 @@ function atualizarEmojisPorSexo(sexo) {
             .replace(/🏃🏻‍♀️/g, emojiCorredor)
             .replace(/🏃🏻‍♂️/g, emojiCorredor);
         tituloIGDCC.innerHTML = textoNovo;
+    }
+
+    // Atualiza a frase de instrução
+    const instrucaoFrase = document.getElementById('instrucaoFrase');
+    if (instrucaoFrase) {
+        const genero = sexo === 'M' ? 'Desbravador' : 'Desbravadora';
+        instrucaoFrase.textContent = `📈 ${genero}, insira os dados da sua corrida!`;
     }
 }
 
@@ -501,6 +526,38 @@ function obterDistanciaFormatada() {
     return !isNaN(valor) ? parseFloat(valor/*.toFixed(1)*/) : valor;
 }
 
+// Função global para atualizar visibilidade dos campos
+function atualizarVisibilidadeCampos() {
+    const tipoSelecionado = document.querySelector('input[name="tipoEntrada"]:checked').value;
+    const entradaTempo = document.getElementById('tempoInput');
+    const entradaPace = document.getElementById('paceInput');
+    const stravaContainer = document.getElementById('stravaImportContainer');
+    
+    if (tipoSelecionado === 'tempo') {
+        entradaTempo.style.display = 'block';
+        entradaPace.style.display = 'none';
+        stravaContainer.style.display = 'none';
+        document.getElementById('tempo').required = true;
+        document.getElementById('pace').required = false;
+        localStorage.setItem('igdcc_tipoEntrada', 'tempo');
+    } else if (tipoSelecionado === 'pace') {
+        entradaTempo.style.display = 'none';
+        entradaPace.style.display = 'block';
+        stravaContainer.style.display = 'none';
+        document.getElementById('tempo').required = false;
+        document.getElementById('pace').required = true;
+        localStorage.setItem('igdcc_tipoEntrada', 'pace');
+    } else if (tipoSelecionado === 'importar') {
+        console.log("ENTROU AQUI")
+        entradaTempo.style.display = 'none';
+        entradaPace.style.display = 'none';
+        stravaContainer.style.display = 'block';
+        document.getElementById('tempo').required = false;
+        document.getElementById('pace').required = false;
+        localStorage.setItem('igdcc_tipoEntrada', 'importar');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Inicializar integração com Strava
     window.stravaIntegration = new StravaIntegration();
@@ -509,6 +566,43 @@ document.addEventListener('DOMContentLoaded', function () {
     const botoesRadio = document.querySelectorAll('input[name="tipoEntrada"]');
     const entradaTempo = document.getElementById('tempoInput');
     const entradaPace = document.getElementById('paceInput');
+    const stravaContainer = document.getElementById('stravaImportContainer');
+
+
+
+    // Adicionar listeners aos radio buttons
+    botoesRadio.forEach(radio => {
+        radio.addEventListener('change', atualizarVisibilidadeCampos);
+    });
+
+    // restaurar tipoEntrada salvo
+    const tipoSalvo = localStorage.getItem('igdcc_tipoEntrada');
+    if (tipoSalvo === 'tempo' || tipoSalvo === 'pace' || tipoSalvo === 'importar') {
+        const rb = document.querySelector(`input[name="tipoEntrada"][value="${tipoSalvo}"]`);
+        if (rb) rb.checked = true;
+        if (tipoSalvo === 'tempo') {
+            entradaTempo.style.display = 'block';
+            entradaPace.style.display = 'none';
+            stravaContainer.style.display = 'none';
+            document.getElementById('tempo').required = true;
+            document.getElementById('pace').required = false;
+        } else if (tipoSalvo === 'pace') {
+            entradaTempo.style.display = 'none';
+            entradaPace.style.display = 'block';
+            stravaContainer.style.display = 'none';
+            document.getElementById('tempo').required = false;
+            document.getElementById('pace').required = true;
+        } else if (tipoSalvo === 'importar') {
+            entradaTempo.style.display = 'none';
+            entradaPace.style.display = 'none';
+            stravaContainer.style.display = 'block';
+            document.getElementById('tempo').required = false;
+            document.getElementById('pace').required = false;
+        }
+    }
+
+    // Estado inicial - chamar depois da restauração
+    atualizarVisibilidadeCampos();
 
     const tEl = document.getElementById('tempo');
     const pEl = document.getElementById('pace');
@@ -571,42 +665,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
-    // restaurar tipoEntrada salvo
-    const tipoSalvo = localStorage.getItem('igdcc_tipoEntrada');
-    if (tipoSalvo === 'tempo' || tipoSalvo === 'pace') {
-        const rb = document.querySelector(`input[name="tipoEntrada"][value="${tipoSalvo}"]`);
-        if (rb) rb.checked = true;
-        if (tipoSalvo === 'tempo') {
-            entradaTempo.style.display = 'block';
-            entradaPace.style.display = 'none';
-            document.getElementById('tempo').required = true;
-            document.getElementById('pace').required = false;
-        } else {
-            entradaTempo.style.display = 'none';
-            entradaPace.style.display = 'block';
-            document.getElementById('tempo').required = false;
-            document.getElementById('pace').required = true;
-        }
-    }
-
-    botoesRadio.forEach(radio => {
-        radio.addEventListener('change', function () {
-            if (this.value === 'tempo') {
-                entradaTempo.style.display = 'block';
-                entradaPace.style.display = 'none';
-                document.getElementById('tempo').required = true;
-                document.getElementById('pace').required = false;
-                localStorage.setItem('igdcc_tipoEntrada', 'tempo');
-            } else {
-                entradaTempo.style.display = 'none';
-                entradaPace.style.display = 'block';
-                document.getElementById('tempo').required = false;
-                document.getElementById('pace').required = true;
-                localStorage.setItem('igdcc_tipoEntrada', 'pace');
-            }
-        });
-    });
 
     // Handler para copiar/baixar somente o card (movido do index.html)
     const btnShareCard = document.getElementById('copyCardBtn');
