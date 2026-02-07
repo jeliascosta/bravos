@@ -38,6 +38,49 @@ footer sub {
     text-overflow: ellipsis;
 }
 
+/* Estilo para a frase de instrução */
+.instrucao-frase {
+    text-align: center;
+    margin: 10px 0;
+    font-size: clamp(0.8em, 2.5vw, 1.1em);
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
+    line-height: 1.2;
+}
+
+/* Estilo para labels dos radio buttons */
+.radio-group label {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    /* white-space: nowrap; */
+}
+
+.radio-group label[for="tipoPace"] {
+    white-space: nowrap;
+}
+
+/* Estilo para o botão de importação do Strava */
+.strava-import-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #fc4c02;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.strava-import-btn:hover {
+    background-color: #e63901;
+}
+
 /* Estilo para a barra separadora entre distância e TAF */
 .taf-separator {
     display: inline-block;
@@ -152,7 +195,7 @@ button:hover {
 .radio-group {
     margin: 10px 0;
     display: flex;
-    gap: 20px;
+    gap: 10px;
 }
 
 .input-group {
@@ -641,6 +684,57 @@ input:checked+.slider:before {
 .share-card .card-meta .meta-value {
     font-size: 0.98rem;
     font-weight: 800;
+}
+
+/* Botão de importação do Strava */
+.strava-import-btn {
+    width: auto;
+    padding: 12px 24px;
+    background-color: #fc4c02;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.strava-import-btn:hover {
+    background-color: #e63f00;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(252, 76, 2, 0.3);
+}
+
+.strava-import-btn:active {
+    transform: translateY(0);
+}
+
+.strava-import-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#stravaStatus {
+    min-height: 20px;
+    transition: color 0.3s ease;
+}
+
+#stravaStatus.error {
+    color: #dc3545;
+}
+
+#stravaStatus.success {
+    color: #28a745;
+}
+
+#stravaStatus.loading {
+    color: #007bff;
 }
 
 /* responsividade: empilha no mobile
