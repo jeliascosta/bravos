@@ -378,7 +378,7 @@ class StravaIntegration {
             // Comparar tempos para detectar pausas
             const diferencaTempos = Math.abs(activity.elapsed_time - activity.moving_time);
             if (diferencaTempos > 10)
-                alert('O STRAVA informou que o tempo decorrido foi maior que o tempo de movimentação. Se houve pausa total durante a corrida, lembre de indicar ao BRAVØS esse fato!');
+                alert('De acordo com o STRAVA, o tempo decorrido desta corrida foi maior que o tempo de movimentação. Se você parou totalmente de correr em algum momento, lembre de indicar ao BRAVØS que houve pausa total!');
 
             this.updateStatus(`Atividade importada: ${activity.name} (${dataFormatada})<br>Distância: ${(activity.distance / 1000).toFixed(2)}km<br>Tempo de movimentação: ${tempoMovFormatado}<br>Tempo decorrido: ${tempoDeslocFormatado}`, 'success');
             
