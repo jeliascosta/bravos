@@ -371,7 +371,16 @@ class StravaIntegration {
                 year: 'numeric' 
             });
             
-            this.updateStatus(`Atividade importada: ${activity.name} (${dataFormatada})`, 'success');
+            // Formatar tempos
+            const tempoMovFormatado = this.formatTime(activity.moving_time);
+            const tempoDeslocFormatado = this.formatTime(activity.elapsed_time);
+            
+            // Comparar tempos para detectar pausas
+            const diferencaTempos = Math.abs(activity.elapsed_time - activity.moving_time);
+            if (diferencaTempos > 10)
+                alert('O STRAVA informou que o tempo decorrido foi maior que o tempo de movimentação. Se houve pausa total durante a corrida, lembre de indicar ao BRAVØS esse fato!');
+
+            this.updateStatus(`Atividade importada: ${activity.name} (${dataFormatada})<br>Distância: ${(activity.distance / 1000).toFixed(2)}km<br>Tempo de movimentação: ${tempoMovFormatado}<br>Tempo decorrido: ${tempoDeslocFormatado}`, 'success');
             
             // Salvar no localStorage
             localStorage.setItem('bravos_distancia', document.getElementById('distancia').value);
@@ -406,12 +415,12 @@ class StravaIntegration {
         const statusEl = document.getElementById('stravaStatus');
         if (statusEl) {
             if (message && message.trim() !== '') {
-                statusEl.textContent = message;
+                statusEl.innerHTML = message;
                 statusEl.style.display = 'block';
                 statusEl.className = type;
             } else {
                 statusEl.style.display = 'none';
-                statusEl.textContent = '';
+                statusEl.innerHTML = '';
                 statusEl.className = '';
             }
         }
