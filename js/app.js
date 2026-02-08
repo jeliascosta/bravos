@@ -438,8 +438,13 @@ function calcularPontosHustle(distancia, notaBRAVØS, idade, distanciaAtual) {
     if (!distancia || isNaN(distancia) || !notaBRAVØS || isNaN(notaBRAVØS)) return 0;
 
     const deltaCorrida = 0.6435; //km
+    const deltaEsteira = 0.7235; //km
     const deltaCaminhada = 0.9655; //km
     let deltaEsforco = deltaCorrida;
+
+    const foiNaEsteira = document.getElementById('esteira')?.value === 'sim';
+    if (foiNaEsteira)
+        deltaEsforco = deltaEsteira;
 
     // Verificar se é treino intervalado
     const isIntervalado = document.getElementById('intervalado')?.value === 'sim';
