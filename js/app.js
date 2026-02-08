@@ -363,6 +363,12 @@ class StravaIntegration {
             document.querySelector('input[name="tipoEntrada"][value="tempo"]').checked = true;
             atualizarVisibilidadeCampos();
             
+            // Definir esteira para "Não" após importação
+            const esteiraSelect = document.getElementById('esteira');
+            if (esteiraSelect) {
+                esteiraSelect.value = 'nao';
+            }
+            
             // Formatar data da atividade
             const dataAtividade = new Date(activity.start_date_local);
             const dataFormatada = dataAtividade.toLocaleDateString('pt-BR', { 
