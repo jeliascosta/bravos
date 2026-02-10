@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const card = document.getElementById('shareCard');
                 const originalBorderRadius = card.style.borderRadius;
                 
-                // Remover border-radius e ajustar padding temporariamente
+                // Remover border-radius temporariamente
                 card.style.borderRadius = '0';
                 
                 const canvas = await html2canvas(card, {
@@ -768,11 +768,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     logging: false
                 });
 
-                // Restaurar os estilos originais
+                // Restaurar o border-radius original
                 card.style.borderRadius = originalBorderRadius;
 
+                // Cortar 3px a partir do chão
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height - 5); // 3px * scale 3 = 9px
+                const croppedCanvas = document.createElement('canvas');
+                croppedCanvas.width = canvas.width;
+                croppedCanvas.height = canvas.height - 5;
+                croppedCanvas.getContext('2d').putImageData(imageData, 0, 0);
+
                 // Criar link de download
-                const dataUrl = canvas.toDataURL('image/png');
+                const dataUrl = croppedCanvas.toDataURL('image/png');
                 const link = document.createElement('a');
                 link.download = `bravos-card-${new Date().toISOString().split('T')[0]}.png`;
                 link.href = dataUrl;
