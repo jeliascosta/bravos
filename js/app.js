@@ -754,12 +754,22 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
+                // Salvar os estilos originais
+                const card = document.getElementById('shareCard');
+                const originalBorderRadius = card.style.borderRadius;
+                
+                // Remover border-radius e ajustar padding temporariamente
+                card.style.borderRadius = '0';
+                
                 const canvas = await html2canvas(card, {
                     scale: 3,
                     backgroundColor: null,
                     useCORS: true,
                     logging: false
                 });
+
+                // Restaurar os estilos originais
+                card.style.borderRadius = originalBorderRadius;
 
                 // Criar link de download
                 const dataUrl = canvas.toDataURL('image/png');
